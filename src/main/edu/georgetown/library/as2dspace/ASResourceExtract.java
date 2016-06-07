@@ -38,16 +38,18 @@ public class ASResourceExtract {
   private CloseableHttpClient client;
   private String sessionId = null;
   private JSONParser parser = new JSONParser();
+  private Properties prop;
   
   public ASResourceExtract(Properties prop) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
-	  this.root = getProperty(prop, "service");
-      this.user = getProperty(prop, "user");
-	  this.pass = getProperty(prop, "password");
+      this.prop = prop;
+	  this.root = getProperty("service");
+      this.user = getProperty("user");
+	  this.pass = getProperty("password");
       client = HttpClients.createDefault();
 	  login();
   }
   
-  public String getProperty(Properties prop, String name) throws DataException {
+  public String getProperty(String name) throws DataException {
       String s = prop.getProperty(name);
       if (s == null) throw new DataException(String.format("Property %s not found", name));
       return s;
@@ -100,7 +102,54 @@ public class ASResourceExtract {
       method.releaseConnection();
       return objects;
   }
-    
+
+  public JSONObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
+      String url = String.format("%srepositories/%d/%s/%d", root, repo, type.toString(), objid);
+      URIBuilder uri = new URIBuilder(url);
+        
+      HttpGet method = new HttpGet();
+      method.setURI(uri.build());
+      method.addHeader("X-ArchivesSpace-Session", sessionId);
+      // Execute the method.
+      CloseableHttpResponse resp = client.execute(method);
+      
+      String json = EntityUtils.toString(resp.getEntity(), "UTF-8");
+
+      JSONObject resultObject = null;
+      try {
+         resultObject = (JSONObject)parser.parse(json);
+      } catch(Exception e) {
+          e.printStackTrace();
+      } finally {
+          method.releaseConnection();          
+      }
+      
+      System.out.println("==================================");
+      System.out.println(url);
+      System.out.println("----------------------------------");
+      if (Boolean.TRUE.equals(resultObject.get("publish"))){
+          System.out.println(json);
+      } else {
+          System.out.println(" -- unpublished ");
+      }
+      System.out.println("==================================");
+      return resultObject;
+  }
+
+  
+  public void processRepos() throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
+      for(String repo: getProperty("repositories").split(",")){
+          int irepo = Integer.parseInt(repo.trim());
+          String handle = getProperty(String.format("handle_%d",irepo));
+          System.out.println(String.format("REPO %d -- %s", irepo, handle));
+          List<Long> list = getObjects(irepo, TYPE.resources);
+          for(long objid : list) {
+              getObject(irepo, TYPE.resources, objid);
+          }
+      }      
+  }
+
+  
   public static void main(String[] args) {
     if (args.length < 1) {
         System.err.println("A property file is required");
@@ -112,12 +161,7 @@ public class ASResourceExtract {
 	    Properties prop = new Properties();
 	    prop.load(new FileReader(new File(propFile)));
 	    ASResourceExtract asData = new ASResourceExtract(prop);
-	    for(String repo: prop.getProperty("repositories","").split(",")){
-	        int irepo = Integer.parseInt(repo.trim());
-	        System.out.println(String.format("REPO %d", irepo));
-	        List<Long> list = asData.getObjects(irepo, TYPE.resources);
-	        System.out.println(list);
-	    }
+	    asData.processRepos();
 	} catch (ClientProtocolException e) {
 		e.printStackTrace();
 	} catch (URISyntaxException e) {
