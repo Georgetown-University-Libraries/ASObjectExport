@@ -14,3 +14,7 @@ handle_1: 12345/6789
 handle_3: 12345/6790
 handle_5: 12345/6791
 ```
+
+***
+[![Georgetown University Library IT Code Repositories](https://raw.githubusercontent.com/Georgetown-University-Libraries/georgetown-university-libraries.github.io/master/LIT-logo-small.png)Georgetown University Library IT Code Repositories](http://georgetown-university-libraries.github.io/)
+
