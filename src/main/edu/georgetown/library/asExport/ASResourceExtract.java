@@ -1,4 +1,4 @@
-package edu.georgetown.library.as2dspace;
+package edu.georgetown.library.asExport;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
