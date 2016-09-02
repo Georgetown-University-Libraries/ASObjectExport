@@ -130,7 +130,7 @@ public class ASResourceExtract {
       if (Boolean.TRUE.equals(resultObject.get("publish"))){
           System.out.println(json);
       } else {
-          System.out.println(" -- unpublished ");
+          System.out.println(" -- unpublished  ");
       }
       System.out.println("==================================");
       return resultObject;
