@@ -62,6 +62,7 @@ A CSV file listing the finding aids in DSpace.
 
 #### Input
 * ASObject Export Property File (described above)
+* repositoryIds - comma separated list of repository ids to query (or blank to query all)
 * DG Finding Aid Inventory File (described above)
 
 #### Output
@@ -86,6 +87,7 @@ dpsace import -a -e {eperson} -c {dg-collection-handle} -s /.../as-ingest/{dg-co
 
 #### Input
 * ASObject Export Property File (described above)
+* repositoryIds - comma separated list of repository ids to query (or blank to query all)
 * DG Finding Aid Inventory File (described above)
 * modification date - find items modified since a particular date
 
