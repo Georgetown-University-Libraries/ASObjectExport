@@ -49,7 +49,7 @@ As needs arise, code will be created to extract other object types such as Digit
 ## Specific Workflows Built on Generic Operations
 These operations are specific to the way the Georgetown University Library synchronizes content between ArchivesSpace and DSpace.  These operations would likely require modification if adopted by other institutions.
 
-### DG Finding Aid Inventory File
+### DSpace Finding Aid Inventory File
 A CSV file listing the finding aids in DSpace.
 
 * Collection Handle
