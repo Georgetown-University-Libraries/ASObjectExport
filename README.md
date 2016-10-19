@@ -14,7 +14,34 @@ handle_1: 12345/6789
 handle_3: 12345/6790
 handle_5: 12345/6791
 ```
-## Command Line Options
+## Generic Operations
+These generic operations are command line operations that may be application to any institution using ArchivesSpace.
+
+### Get Published Resources
+
+#### Input
+* repositoryId - repository to query
+* resourceExcludes - comma separated list of resource ids to exclude (optional)
+* modificationDate - search for resources modified after a specific date (optional)
+
+#### Ouptut
+* JSON Array of resource metadata - listing all published resources (modified after modification date) in the repository excluding those in the exclusion list
+
+### Get Resource EAD
+
+#### Input
+* repositoryId - repository to query
+* resourceId - resource to extract
+* output file - file name to use for exported resource
+
+#### Output
+* PDF output file
+
+## Specific Workflows Built on Generic Operations
+These operations are specific to the way the Georgetown University Library synchronizes content between ArchivesSpace and DSpace.  These operations would likely require modification if adopted by other institutions.
+
+### 
+
 
 ### Create Resource Ingest Options
 
