@@ -104,7 +104,7 @@ dpsace import -a -e {eperson} -c {dg-collection-handle} -s /.../as-ingest/{dg-co
 
 #### DSpace Update
 ```
-dspace itemupdate -e {eperson} -s /.../as-ingest/{dg-collection-handle} -A -i dc.identifier.uri
+dspace itemupdate -e {eperson} -s /.../as-ingest/ -A -i dc.identifier.uri
 ```
 
 ***
