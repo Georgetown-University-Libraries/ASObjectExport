@@ -96,11 +96,10 @@ dpsace import -a -e {eperson} -c {dg-collection-handle} -s /.../as-ingest/{dg-co
 * DSpace Item Update folders
 
 ```
-/.../as-ingest
-  /{dg-collection-handle}
+/.../as-update
     /{resource-id}
-      resource-ead.pdf
-      dublin_core.xml - contains dc.identifier.uri for the source item (used to itentify the object to update)
+        resource-ead.pdf
+        dublin_core.xml - contains dc.identifier.uri for the source item (used to itentify the object to update)
 ```
 
 #### DSpace Update
