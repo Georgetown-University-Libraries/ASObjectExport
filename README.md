@@ -53,7 +53,7 @@ These operations are specific to the way the Georgetown University Library synch
 A CSV file listing the finding aids in DSpace.
 
 * Collection Handle
-* DSpace Item Id
+* DSpace Item Handle
 * DSpace Item Title
 * Finding Aid URL
 * Bitstream last modification date (optional)
@@ -74,7 +74,7 @@ A CSV file listing the finding aids in DSpace.
     /{resource-id}
       resource-ead.pdf
       contents
-      dublin_core.xml
+      dublin_core.xml - metadata created with a crosswalk from the AS Resource Object JSON
 ```
 
 #### DSpace Update
@@ -98,7 +98,12 @@ dpsace import -a -e {eperson} -c {dg-collection-handle} -s /.../as-ingest/{dg-co
   /{dg-collection-handle}
     /{resource-id}
       resource-ead.pdf
-      dublin_core.xml
+      dublin_core.xml - contains dc.identifier.uri for the source item (used to itentify the object to update)
+```
+
+#### DSpace Update
+```
+dspace itemupdate -e {eperson} -s /.../as-ingest/{dg-collection-handle} -A -i dc.identifier.uri
 ```
 
 ***
