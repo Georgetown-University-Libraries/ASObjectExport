@@ -70,7 +70,7 @@ A CSV file listing the finding aids in DSpace.
 * DSpace Item Ingest folders
 
 ```
-/.../as-ingest
+/.../as-ingest (path defined in the property file)
   /{dg-collection-handle}
     /{resource-id}
       resource-ead.pdf
@@ -96,7 +96,7 @@ dpsace import -a -e {eperson} -c {dg-collection-handle} -s /.../as-ingest/{dg-co
 * DSpace Item Update folders
 
 ```
-/.../as-update
+/.../as-update (path defined in the property file)
     /{resource-id}
         resource-ead.pdf
         dublin_core.xml - contains dc.identifier.uri for the source item (used to itentify the object to update)
