@@ -1,7 +1,7 @@
 Extract published resources using the ArchivesSpace API.
 Generate FindingAid item objects in DSpace.
 
-## Property File Syntax
+## ASObject Export Property File Syntax
 ```
 service: http://<your-server>:8089/
 user: <read-only-user-id>
@@ -20,6 +20,7 @@ These generic operations are command line operations that may be application to 
 ### Get Published Resources
 
 #### Input
+* ASObject Export Property File (described above)
 * repositoryId - repository to query
 * resourceExcludes - comma separated list of resource ids to exclude (optional)
 * modificationDate - search for resources modified after a specific date (optional)
@@ -30,6 +31,7 @@ These generic operations are command line operations that may be application to 
 ### Get Resource EAD
 
 #### Input
+* ASObject Export Property File (described above)
 * repositoryId - repository to query
 * resourceId - resource to extract
 * output file - file name to use for exported resource
@@ -40,16 +42,24 @@ These generic operations are command line operations that may be application to 
 ## Specific Workflows Built on Generic Operations
 These operations are specific to the way the Georgetown University Library synchronizes content between ArchivesSpace and DSpace.  These operations would likely require modification if adopted by other institutions.
 
-### 
+### DG Finding Aid Inventory File
+A CSV file listing the finding aids in DSpace.
 
+* Collection Handle
+* DSpace Item Id
+* DSpace Item Title
+* Finding Aid URL
+* Bitstream last modification date (optional)
 
-### Create Resource Ingest Options
+### Create Resource Ingest 
 
 #### Input
-* List of Finding Aid references in DG
+* DG Finding Aid Inventory File (described above)
 
 #### Output
-* Ingest folders
+* ASObject Export Property File (described above)
+* DSpace Item Ingest Report (repository id, resource id, resource title)
+* DSpace Item Ingest folders
 
 ```
 /as-ingest
@@ -59,6 +69,13 @@ These operations are specific to the way the Georgetown University Library synch
       contents
       dublin_core.xml
 ```
+
+### Create Resource Update
+
+#### Input
+* ASObject Export Property File (described above)
+* DG Finding Aid Inventory File (described above)
+* modification date - find items modified since a particular date
 
 ***
 [![Georgetown University Library IT Code Repositories](https://raw.githubusercontent.com/Georgetown-University-Libraries/georgetown-university-libraries.github.io/master/LIT-logo-small.png)Georgetown University Library IT Code Repositories](http://georgetown-university-libraries.github.io/)
