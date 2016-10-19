@@ -22,11 +22,16 @@ handle_5: 12345/6791
 * List of Finding Aid references in DG
 
 #### Output
-* Ingest folders: ../as-ingest/{dg-collection}/{resource-id}
-* ../as-ingest/{dg-collection}/{resource-id}/resource-ead.pdf
-* ../as-ingest/{dg-collection}/{resource-id}/contents
-* ../as-ingest/{dg-collection}/{resource-id}/dublin_core.xml
+* Ingest folders
 
+```
+/as-ingest
+  /{dg-collection}
+    /{resource-id}
+      resource-ead.pdf
+      contents
+      dublin_core.xml
+```
 
 ***
 [![Georgetown University Library IT Code Repositories](https://raw.githubusercontent.com/Georgetown-University-Libraries/georgetown-university-libraries.github.io/master/LIT-logo-small.png)Georgetown University Library IT Code Repositories](http://georgetown-university-libraries.github.io/)
