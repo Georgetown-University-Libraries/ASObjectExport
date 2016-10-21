@@ -3,6 +3,8 @@ package edu.georgetown.library.asExport;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -11,6 +13,7 @@ public class ASCommandLineSpec {
     public static final String OPT_PROP     = "prop";
     public static final String OPT_REPOS    = "repos";
     public static final String OPT_REPO     = "repo";
+    public static final String OPT_OBJ      = "obj";
     public static final String OPT_MODDATE  = "moddate";
     
     private Options options = new Options();
@@ -28,9 +31,16 @@ public class ASCommandLineSpec {
         return this;
     }
 
-    public ASCommandLineSpec addRepo() {
+    public ASCommandLineSpec addRepoTypeObject() {
         options.addOption(OPT_REPO, true, "Repository id");
         options.getOption(OPT_REPO).setRequired(true);
+        options.addOption(OPT_OBJ, true, "Object id");
+        options.getOption(OPT_OBJ).setRequired(true);
+        OptionGroup grp = new OptionGroup();
+        for(TYPE t: TYPE.values()) {
+            grp.addOption(new Option(t.name(), t.name()));
+        }
+        options.addOptionGroup(grp);
         return this;
     }
     

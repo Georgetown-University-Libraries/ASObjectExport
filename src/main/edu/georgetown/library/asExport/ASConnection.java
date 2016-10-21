@@ -14,8 +14,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +96,7 @@ public class ASConnection {
 
   public JSONObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
       String url = String.format("%srepositories/%d/%s/%d", root, repo, type.toString(), objid);
+      System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
         
       HttpGet method = makeGetRequest(uri);
@@ -117,32 +123,28 @@ public class ASConnection {
       return null;
   }
   
-  public int[] getReposToProcess(String paramRepo) throws DataException {
-      if (paramRepo == null) return prop.getRepositories();
-      if (paramRepo.isEmpty()) return prop.getRepositories();
-      return ASProperties.getIntList("The repos parameter", paramRepo);
+  public void getResourceMetadata(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
+      String url = String.format("%srepositories/%d/resource_descriptions/%d.format/metadata", root, repo, type.toString(), objid);
+      System.out.println(url);
+      URIBuilder uri = new URIBuilder(url);
+        
+      HttpGet method = makeGetRequest(uri);
+      CloseableHttpResponse resp = client.execute(method);
+      
+      System.out.println(EntityUtils.toString(resp.getEntity(), "UTF-8"));
   }
-  
-  
-  public void processRepos() throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
-      processRepos(prop.getRepositories());
+
+  public void saveResourceFile(int repo, TYPE type, long objid, FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException {
+      String url = String.format("%srepositories/%d/resource_descriptions/%d.%s", root, repo, type.toString(), objid, fmt.name());
+      System.out.println(url);
+      URIBuilder uri = new URIBuilder(url);
+        
+      HttpGet method = makeGetRequest(uri);
+      CloseableHttpResponse resp = client.execute(method);
+      
+      try(InputStream is = resp.getEntity().getContent()) {
+          Files.copy(is, f.toPath());
+      }
   }
-  public void processRepos(int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
-      for(int irepo: repos){
-          //String handle = prop.getRepoHandle(irepo);
-          //System.out.println(String.format("REPO %d -- %s", irepo, handle));
-          List<Long> list = getObjects(irepo, TYPE.resources);
-          for(long objid : list) {
-              JSONObject obj = getPublishedObject(irepo, TYPE.resources, objid);
-              if (obj == null) continue;
-              ASResource res = new ASResource(obj);
-              System.out.println("Title         : "+res.getTitle());
-              System.out.println("Date          : "+res.getDate());
-              System.out.println("Mod Date      : "+res.getModDate());
-              System.out.println("Description   : "+res.getDescription());
-              System.out.println("");
-          }
-      }      
-  }
-  
+
 }

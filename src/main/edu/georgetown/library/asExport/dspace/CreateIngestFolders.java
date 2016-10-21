@@ -2,7 +2,6 @@ package edu.georgetown.library.asExport.dspace;
 
 import org.apache.http.client.ClientProtocolException;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -11,7 +10,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import edu.georgetown.library.asExport.ASCommandLineSpec;
-import edu.georgetown.library.asExport.ASConnection;
 import edu.georgetown.library.asExport.ASDriver;
 import edu.georgetown.library.asExport.ASParsedCommandLine;
 import edu.georgetown.library.asExport.ASProperties;
@@ -19,7 +17,7 @@ import edu.georgetown.library.asExport.ASResource;
 import edu.georgetown.library.asExport.DataException;
 import edu.georgetown.library.asExport.TYPE;
 
-public class CreateIngestFolders {
+public class CreateIngestFolders extends ASDriver {
 
     /*
      * Args
@@ -47,14 +45,10 @@ public class CreateIngestFolders {
         }
     }
     
-    private ASConnection asConn;
-    private AS2DSpaceProperties prop;
     private int[] irepos;
     
     public CreateIngestFolders(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
-        File propFile = cmdLine.getPropertyFile();
-        this.prop = new AS2DSpaceProperties(propFile);
-        asConn = new ASConnection(prop);
+        super(cmdLine);
         String repList = cmdLine.getRepositoryList();
         irepos = repList.isEmpty() ? prop.getRepositories() : ASProperties.getIntList("The repos parameter", repList);
     }
