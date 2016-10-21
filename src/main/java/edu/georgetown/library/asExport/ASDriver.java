@@ -54,6 +54,7 @@ public class ASDriver {
           for(long objid : list) {
               JSONObject obj = asConn.getPublishedObject(irepo, TYPE.resources, objid);
               if (obj == null) continue;
+              
               System.out.println(String.format("[%d] %s", objid, obj.toString()));
               ASResource res = new ASResource(obj);
               System.out.println("Title         : "+res.getTitle());

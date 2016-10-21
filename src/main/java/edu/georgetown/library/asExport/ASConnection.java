@@ -13,16 +13,20 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class ASConnection {
   //https://archivesspace.github.io/archivesspace/doc/file.API.html
@@ -123,19 +127,8 @@ public class ASConnection {
       return null;
   }
   
-  public void getResourceMetadata(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
-      String url = String.format("%srepositories/%d/resource_descriptions/%d.format/metadata", root, repo, type.toString(), objid);
-      System.out.println(url);
-      URIBuilder uri = new URIBuilder(url);
-        
-      HttpGet method = makeGetRequest(uri);
-      CloseableHttpResponse resp = client.execute(method);
-      
-      System.out.println(EntityUtils.toString(resp.getEntity(), "UTF-8"));
-  }
-
-  public void saveResourceFile(int repo, TYPE type, long objid, FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException {
-      String url = String.format("%srepositories/%d/resource_descriptions/%d.%s", root, repo, type.toString(), objid, fmt.name());
+  public Document getEADXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException {
+      String url = String.format("%srepositories/%d/resource_descriptions/%d.%s", root, repo, objid, FORMAT.xml);
       System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
         
@@ -143,8 +136,22 @@ public class ASConnection {
       CloseableHttpResponse resp = client.execute(method);
       
       try(InputStream is = resp.getEntity().getContent()) {
-          Files.copy(is, f.toPath());
+          return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
       }
+  }
+  
+  public void saveResourceFile(int repo, long objid, FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException {
+      String url = String.format("%srepositories/%d/resource_descriptions/%d.%s", root, repo, objid, fmt.name());
+      System.out.println(url);
+      URIBuilder uri = new URIBuilder(url);
+        
+      HttpGet method = makeGetRequest(uri);
+      CloseableHttpResponse resp = client.execute(method);
+      
+      try(InputStream is = resp.getEntity().getContent()) {
+          Files.copy(is, f.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      }
+      resp.close();
   }
 
 }
