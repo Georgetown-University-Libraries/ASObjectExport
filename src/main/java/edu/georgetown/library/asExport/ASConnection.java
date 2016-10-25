@@ -37,6 +37,7 @@ public class ASConnection {
   private CloseableHttpClient client;
   private String sessionId = null;
   private JSONParser parser = new JSONParser();
+  @SuppressWarnings("unused")
   private ASProperties prop;
   
   public ASConnection(ASProperties prop) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
@@ -100,7 +101,7 @@ public class ASConnection {
 
   public JSONObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
       String url = String.format("%srepositories/%d/%s/%d", root, repo, type.toString(), objid);
-      System.out.println(url);
+      //System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
         
       HttpGet method = makeGetRequest(uri);
@@ -127,9 +128,11 @@ public class ASConnection {
       return null;
   }
   
-  public Document getEADXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException {
+  public Document getEADXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException, DataException {
+      if (getPublishedObject(repo, TYPE.resources, objid) == null) {
+          throw new DataException(String.format("Resource [%d/%d] does not exist or is unpublihsed", repo, objid));
+      }
       String url = String.format("%srepositories/%d/resource_descriptions/%d.%s", root, repo, objid, FORMAT.xml);
-      System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
         
       HttpGet method = makeGetRequest(uri);
@@ -140,9 +143,11 @@ public class ASConnection {
       }
   }
   
-  public void saveResourceFile(int repo, long objid, FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException {
+  public void saveResourceFile(int repo, long objid, FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException, DataException {
+      if (getPublishedObject(repo, TYPE.resources, objid) == null) {
+          throw new DataException(String.format("Resource [%d/%d] does not exist or is unpublihsed", repo, objid));
+      }
       String url = String.format("%srepositories/%d/resource_descriptions/%d.%s", root, repo, objid, fmt.name());
-      System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
         
       HttpGet method = makeGetRequest(uri);
