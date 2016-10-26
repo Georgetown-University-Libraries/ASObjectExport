@@ -1,37 +1,28 @@
 package edu.georgetown.library.asExport;
 
-import org.apache.http.client.ClientProtocolException;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
+import org.w3c.dom.Document;
 
 import edu.georgetown.library.asExport.dspace.AS2DSpaceProperties;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.util.List;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 public class ASDriver {
-  public static void main(String[] args) {
-	try {
-	    ASCommandLineSpec asCmdLine = new ASCommandLineSpec(ASDriver.class.getName());
-	    ASParsedCommandLine cmdLine = asCmdLine.parse(args);
-	    ASDriver driver = new ASDriver(cmdLine);
-	    driver.processRepos();
-	} catch (ClientProtocolException e) {
-		e.printStackTrace();
-	} catch (URISyntaxException e) {
-		e.printStackTrace();
-	} catch (IOException e) {
-		e.printStackTrace();
-	} catch (ParseException e) {
-		e.printStackTrace();
-	} catch (DataException e) {
-        e.printStackTrace();
-    }
-  }
-  
   protected ASParsedCommandLine cmdLine;
   protected ASConnection asConn;
   protected AS2DSpaceProperties prop;
@@ -43,32 +34,32 @@ public class ASDriver {
       asConn = new ASConnection(prop);    
   }
   
-  public void processRepos() throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
-      processRepos(prop.getRepositories());
-  }
-  public void processRepos(int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
-      for(int irepo: repos){
-          //String handle = prop.getRepoHandle(irepo);
-          //System.out.println(String.format("REPO %d -- %s", irepo, handle));
-          List<Long> list = asConn.getObjects(irepo, TYPE.resources);
-          for(long objid : list) {
-              JSONObject obj = asConn.getPublishedObject(irepo, TYPE.resources, objid);
-              if (obj == null) continue;
-              
-              System.out.println(String.format("[%d] %s", objid, obj.toString()));
-              ASResource res = new ASResource(obj);
-              System.out.println("Title         : "+res.getTitle());
-              System.out.println("Date          : "+res.getDate());
-              System.out.println("Mod Date      : "+res.getModDate());
-              System.out.println("Description   : "+res.getDescription());
-              System.out.println("");
-          }
-      }      
-  }
-
   public String getObjectUri(int repo, TYPE type, long objid) throws DataException {
       return String.format("%s/repositories/%d/%s/%d", prop.getPubService(), repo, type.name(), objid);
   }
 
+  public void convertEAD(Document d, File f, int repo, long objid) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException, DataException{
+      InputStream is = this.getClass().getClassLoader().getResourceAsStream("edu/georgetown/library/asExport/eadMetadata.xsl");
+      try(FileOutputStream fos = new FileOutputStream(f)) {
+          Transformer t = TransformerFactory.newInstance().newTransformer(new StreamSource(is));
+          t.setParameter("creator", prop.getProperty("creator", repo));
+          t.setParameter("rights", prop.getProperty("rights", repo));
+          t.setParameter("author", prop.getProperty("author", repo));
+          t.setParameter("uri", getObjectUri(repo, TYPE.resources, objid));
+          t.transform(new DOMSource(d), new StreamResult(fos));          
+      }
+  }
+
+  public void saveEAD(Document d, File f) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException{
+      try(FileOutputStream fos = new FileOutputStream(f)) {
+          TransformerFactory.newInstance().newTransformer().transform(new DOMSource(d), new StreamResult(fos));          
+      }
+  }
+
+  public void dumpEAD(Document d, OutputStream os) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException{
+      InputStream is = this.getClass().getClassLoader().getResourceAsStream("edu/georgetown/library/asExport/eadReport.xsl");
+      TransformerFactory.newInstance().newTransformer(new StreamSource(is)).transform(new DOMSource(d), new StreamResult(os));
+      System.out.flush();
+  }
 
 }

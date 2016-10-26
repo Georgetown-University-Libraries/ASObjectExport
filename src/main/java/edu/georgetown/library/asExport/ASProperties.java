@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+
 public class ASProperties  {
     private Properties prop = new Properties();
     public static final String P_SERVICE     = "service";
@@ -13,6 +15,9 @@ public class ASProperties  {
     public static final String P_USER        = "user";
     public static final String P_PASSWORD    = "password";
     public static final String P_REPOS       = "repositories";
+    public static final String P_BITDESC     = "bitstream-description";
+    public static final String P_OUTDIR      = "output-dir";
+    public static final String P_CLEANOUTDIR = "clean-output-dir";
     
     public Properties getProperties() {
         return prop;
@@ -69,5 +74,34 @@ public class ASProperties  {
     public String getProperty(String prefix, int repo) {
         String key = String.format("%s_%d", prefix, repo);
         return prop.getProperty(key, prop.getProperty(key, ""));
+    }
+    
+    public String getBitstreamDesc(String def) {
+        return prop.getProperty(P_BITDESC, def);
+    }
+    
+    public File getOutputDir() throws DataException {
+        String s = prop.getProperty(P_OUTDIR, "");
+        if (s.isEmpty()) throw new DataException("output-dir must be set in the property file");
+        File f = new File(s);
+        return f;
+    }
+    public boolean getCleanOutputDir() throws DataException {
+        String s = prop.getProperty(P_CLEANOUTDIR, "");
+        if (s.equals("N")) return false;
+        if (s.equals("Y")) return true;
+        throw new DataException("clean-output-dir must be set to Y or N in the property file");
+    }
+    
+    public File resetOutputDir() throws DataException, IOException {
+        File f = getOutputDir();
+        if (getCleanOutputDir()) {
+            FileUtils.deleteDirectory(f);
+        }
+        if (f.exists()) {
+            throw new DataException(String.format("The output-dir [%s] specified in the property file already exists", f.getName()));
+        }
+        f.mkdirs();
+        return f;
     }
 }
