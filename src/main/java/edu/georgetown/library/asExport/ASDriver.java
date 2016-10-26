@@ -66,4 +66,9 @@ public class ASDriver {
       }      
   }
 
+  public String getObjectUri(int repo, TYPE type, long objid) throws DataException {
+      return String.format("%s/repositories/%d/%s/%d", prop.getPubService(), repo, type.name(), objid);
+  }
+
+
 }

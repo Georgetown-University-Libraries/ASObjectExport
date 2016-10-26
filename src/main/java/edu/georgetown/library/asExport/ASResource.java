@@ -23,6 +23,23 @@ public class ASResource {
     public String getTitle() {
         return json.containsKey("title") ? json.get("title").toString() : "";
     }
+
+    public String getID(String def) {
+        if (!json.containsKey("id_0")) return def;
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<10; i++) {
+            String s = String.format("id_%d", i);
+            if (json.containsKey(s)) {
+                if (i > 0) sb.append(".");
+                sb.append(json.get(s).toString().replaceAll("/", "_"));
+            } else {
+                break;
+            }
+        }
+        return sb.toString();
+    }
+
+    
     public String getModDate() {
         return json.containsKey("system_mtime") ? json.get("system_mtime").toString() : "";
     }

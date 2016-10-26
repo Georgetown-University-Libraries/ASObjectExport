@@ -8,10 +8,11 @@ import java.util.Properties;
 
 public class ASProperties  {
     private Properties prop = new Properties();
-    public static final String P_SERVICE  = "service";
-    public static final String P_USER     = "user";
-    public static final String P_PASSWORD = "password";
-    public static final String P_REPOS    = "repositories";
+    public static final String P_SERVICE     = "service";
+    public static final String P_PUBSERVICE  = "pubservice";
+    public static final String P_USER        = "user";
+    public static final String P_PASSWORD    = "password";
+    public static final String P_REPOS       = "repositories";
     
     public Properties getProperties() {
         return prop;
@@ -23,19 +24,26 @@ public class ASProperties  {
     
     public String getService() throws DataException {
         String s = prop.getProperty(P_SERVICE, "");
-        if (s.isEmpty()) throw new DataException("Service must be set in the property file");
+        if (s.isEmpty()) throw new DataException("service must be set in the property file");
         return s;
     }
+    
+    public String getPubService() throws DataException {
+        String s = prop.getProperty(P_PUBSERVICE, "");
+        if (s.isEmpty()) throw new DataException("pubservice must be set in the property file");
+        return s;
+    }
+    
 
     public String getUser() throws DataException {
         String s = prop.getProperty(P_USER, "");
-        if (s.isEmpty()) throw new DataException("User must be set in the property file");
+        if (s.isEmpty()) throw new DataException("user must be set in the property file");
         return s;
     }
 
     public String getPassword() throws DataException {
         String s = prop.getProperty(P_PASSWORD, "");
-        if (s.isEmpty()) throw new DataException("Password must be set in the property file");
+        if (s.isEmpty()) throw new DataException("password must be set in the property file");
         return s;
     }
 
@@ -58,4 +66,8 @@ public class ASProperties  {
         return ivals;        
     }
     
+    public String getProperty(String prefix, int repo) {
+        String key = String.format("%s_%d", prefix, repo);
+        return prop.getProperty(key, prop.getProperty(key, ""));
+    }
 }

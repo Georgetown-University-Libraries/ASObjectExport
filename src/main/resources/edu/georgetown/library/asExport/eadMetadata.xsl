@@ -2,10 +2,10 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
     <xsl:output method="xml" />
     
-    <xsl:variable name="creator">Georgetown University Library Booth Family Center for Special Collections</xsl:variable>
-    <xsl:variable name="rights">All Rights Reserved by Georgetown University Library.</xsl:variable>
-    <xsl:variable name="author"></xsl:variable>
-    <xsl:variable name="uri"></xsl:variable>
+    <xsl:param name="creator"/>
+    <xsl:param name="rights"/>
+    <xsl:param name="author"/>
+    <xsl:param name="uri"/>
     
     <xsl:template match="/ead">
       <dublin_core schema="dc">
@@ -25,7 +25,7 @@
           <xsl:value-of select="$creator"/>
         </dcvalue>
 
-        <dcvalue element="creator">
+        <dcvalue element="contributor" qualifier="author">
           <xsl:value-of select="$author"/>
         </dcvalue>
         
@@ -48,7 +48,7 @@
           </xsl:choose>
         </dcvalue>
         
-        <xsl:for-each select="//controlaccess/subject|//controlaccess/genreform">
+        <xsl:for-each select="//controlaccess/subject|//controlaccess/genreform|//controlaccess/*">
           <dcvalue element="subject">
             <xsl:value-of select="text()"/>
           </dcvalue>

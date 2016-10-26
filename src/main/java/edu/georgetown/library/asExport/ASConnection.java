@@ -98,7 +98,7 @@ public class ASConnection {
       method.releaseConnection();
       return objects;
   }
-
+  
   public JSONObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
       String url = String.format("%srepositories/%d/%s/%d", root, repo, type.toString(), objid);
       //System.out.println(url);
