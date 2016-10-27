@@ -43,12 +43,17 @@ public class CreateIngestFolders extends ASDriver {
      */
     public static void main(String[] args) {
         try {
+            System.out.println("1");
             ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
+            System.err.println("2");
             asCmdLine.addRepos();
+            System.err.println("3");
             ASParsedCommandLine cmdLine = asCmdLine.parse(args);
+            System.err.println("4");
             CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
-            System.out.println("Process Repos");
+            System.err.println("Process Repos");
             createIngestFolders.processRepos();        
+            System.err.println("5");
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {
