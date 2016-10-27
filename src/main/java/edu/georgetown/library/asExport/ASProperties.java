@@ -18,6 +18,7 @@ public class ASProperties  {
     public static final String P_BITDESC     = "bitstream-description";
     public static final String P_OUTDIR      = "output-dir";
     public static final String P_CLEANOUTDIR = "clean-output-dir";
+    public static final String P_RPTDIR      = "report-dir";
     
     public Properties getProperties() {
         return prop;
@@ -101,6 +102,13 @@ public class ASProperties  {
         if (f.exists()) {
             throw new DataException(String.format("The output-dir [%s] specified in the property file already exists", f.getName()));
         }
+        f.mkdirs();
+        return f;
+    }
+    public File getReportDir() throws DataException {
+        String s = prop.getProperty(P_RPTDIR, "");
+        if (s.isEmpty()) throw new DataException("report-dir must be set in the property file");
+        File f = new File(s);
         f.mkdirs();
         return f;
     }

@@ -1,28 +1,40 @@
+# Service URL's
+# --------------------------------------------------
 # service: url to the REST API
 service: http://<hostname>:8089/
 # pubservice: url to public site for uris to resoruces
 pubservice: http://<hostname>/
+
+# API Credentials
+# --------------------------------------------------
 # api user name, it is recommended that this user have only read-only access
 user: <api-user-name>
 # api password
 password: <api-password>
-# runtime output directory
+
+# Output dir for ingest folders and item update folders (may be deleted on each execution)
+# --------------------------------------------------
 output-dir: output
 # If clean-output-dir is set to Y, the entire direcotry will be deleted
 # clean-output-dir: N
 clean-output-dir: Y
 
+# Report dir
+# --------------------------------------------------
+report-dir: reports
+
 #List of repository ids to query
+# --------------------------------------------------
 #repositories: 1,2,3
 
-# DSpace handle to map resources to (one per repository above)
-
-# Annotate repo handles
+# Annotate DSpace handle to map resources to (one per repository above)
+# --------------------------------------------------
 handle_1: 11111/222222_CollA
 handle_2: 11111/333333_CollB
 handle_3: 11111/444444_CollC
 
 # Finding Aid Metadata
+# --------------------------------------------------
 creator: <dc.creator default text>
 rights: <dc.rights default text>
 author: <dc.contributor.author default text>
@@ -32,4 +44,5 @@ rights_2: <dc.rights text for repo 2>
 author_3: <dc.contributor.author text for repo 3>
 
 # DSpace Contents File Label
+# --------------------------------------------------
 bitstream-description: Finding Aid

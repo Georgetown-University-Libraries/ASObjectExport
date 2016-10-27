@@ -50,13 +50,14 @@ As needs arise, code will be created to extract other object types such as Digit
 These operations are specific to the way the Georgetown University Library synchronizes content between ArchivesSpace and DSpace.  These operations would likely require modification if adopted by other institutions.
 
 ### DSpace Finding Aid Inventory File
-A CSV file listing the finding aids in DSpace.
+A CSV file listing the finding aids in DSpace.  Note that DSpace does not store a bitstream update date.
 
 * Collection Handle
 * DSpace Item Handle
-* DSpace Item Title
+* DSpace Item Title (commas removed)
 * Finding Aid URL
-* Bitstream last modification date (optional)
+* Bitstream name 
+* Bitstream last modification date (optional, from ead name)
 
 ### Create Resource Ingest 
 

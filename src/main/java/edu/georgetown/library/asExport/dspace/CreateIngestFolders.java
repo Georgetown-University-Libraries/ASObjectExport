@@ -64,6 +64,7 @@ public class CreateIngestFolders extends ASDriver {
     private OutputStream os;
     private int[] irepos;
     private File outDir;
+    private File rptDir;
     private String dateStr;
     
     public CreateIngestFolders(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
@@ -71,8 +72,7 @@ public class CreateIngestFolders extends ASDriver {
         String repList = cmdLine.getRepositoryList();
         irepos = repList.isEmpty() ? prop.getRepositories() : ASProperties.getIntList("The repos parameter", repList);
         outDir = prop.resetOutputDir();
-        File rptDir = new File(outDir, "reports");
-        rptDir.mkdirs();
+        rptDir = prop.getReportDir();
         File f = new File(rptDir, "AS.report.csv");
         os = new FileOutputStream(f);        
         DateFormat df = new SimpleDateFormat("YYYYMMdd");
