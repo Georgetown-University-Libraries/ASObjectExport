@@ -43,7 +43,7 @@ public class CreateIngestFolders extends ASDriver {
      */
     public static void main(String[] args) {
         try {
-            ASCommandLineSpec asCmdLine = new ASCommandLineSpec(ASDriver.class.getName());
+            ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
             asCmdLine.addRepos();
             ASParsedCommandLine cmdLine = asCmdLine.parse(args);
             CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
