@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 
 public class ASResource {
     private JSONObject json;
+    
     public ASResource(JSONObject json) {
         this.json = json;
     }
@@ -19,7 +20,10 @@ public class ASResource {
         return retVal;
     }
     
-    
+    public boolean isPublished() {
+        if (!json.containsKey("publish")) return false;
+        return Boolean.TRUE.equals(json.get("publish"));
+    }
     public String getTitle() {
         return json.containsKey("title") ? json.get("title").toString() : "";
     }

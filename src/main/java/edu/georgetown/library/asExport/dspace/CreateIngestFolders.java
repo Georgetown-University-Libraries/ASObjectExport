@@ -103,8 +103,6 @@ public class CreateIngestFolders extends ASDriver {
             try {
                 String rheader = String.format("%s; Resource %d of %d", header, ++count, list.size());
                 processResource(repoDir, irepo, objid, rheader);
-            } catch (SAXException e) {
-                System.out.println(" *** " + e.getMessage());
             } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -121,29 +119,40 @@ public class CreateIngestFolders extends ASDriver {
         }        
     }
     
-    public void processResource(File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, SAXException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-        JSONObject obj = asConn.getPublishedObject(irepo, TYPE.resources, objid);
+    public void processResource(File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+        JSONObject obj = asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
+            System.out.println(String.format(" *** Object not found - skipping"));
             return;
         }
         ASResource asRes = new ASResource(obj);
         String id = asRes.getID(String.format("res_%d", objid));
-        System.out.println(String.format("%s: %s", rheader, id));
+        String label = String.format("%s: %s", rheader, id);
+        System.out.println(label);
+        if (!asRes.isPublished()) {
+            System.out.println(String.format(" *** Unpublished resource [%s] - skipping", id));
+            return;
+        }
         
-        File objDir = new File(repoDir, id);
-        objDir.mkdirs();
-        
-        Document d = asConn.getEADXML(irepo,  objid);
-        dumpEAD(d, os);
+        try {
+            //Attempt to parse and report on document before creating folder.  Only create folder if parse-able.
+            Document d = asConn.getEADXML(irepo,  objid);
+            dumpEAD(d, os);
 
-        convertEAD(d, new File(objDir, "dublin_core.xml"), irepo, objid);
-        File eadFile = new File(objDir, String.format("ead.%s.%s.pdf", id, dateStr));
-        asConn.saveResourceFile(irepo, objid, FORMAT.pdf, eadFile);
+            File objDir = new File(repoDir, id);
+            objDir.mkdirs();
             
-        File contentsFile = new File(objDir, "contents");
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(contentsFile))) {
-            bw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
-        }        
+            convertEAD(d, new File(objDir, "dublin_core.xml"), irepo, objid);
+            File eadFile = new File(objDir, String.format("ead.%s.%s.pdf", id, dateStr));
+            asConn.saveResourceFile(irepo, objid, FORMAT.pdf, eadFile);
+                
+            File contentsFile = new File(objDir, "contents");
+            try(BufferedWriter bw = new BufferedWriter(new FileWriter(contentsFile))) {
+                bw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
+            }                    
+        } catch (SAXException e) {
+            System.err.println(String.format(" *** Skipping [%s]: %s", id, e.getMessage()));            
+        }
     }
 
 }
