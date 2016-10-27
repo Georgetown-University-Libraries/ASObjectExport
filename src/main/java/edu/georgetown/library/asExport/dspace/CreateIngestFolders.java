@@ -86,20 +86,23 @@ public class CreateIngestFolders extends ASDriver {
     public void processRepos(int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
         File ingestDir = new File(outDir, "ingest");
         ingestDir.mkdirs();
+        int count = 0;
         for(int irepo: repos){
-            processRepo(ingestDir, irepo);
+            processRepo(ingestDir, irepo, String.format("Repo %d of %d", ++count, repos.length));
         }      
     }
     
-    public void processRepo(File ingestDir, int irepo) throws DataException, ClientProtocolException, URISyntaxException, IOException {
+    public void processRepo(File ingestDir, int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
         String repoName = prop.getRepoHandle(irepo).replaceAll("[/\\s]", "_");
         File repoDir = new File(ingestDir, repoName);
         repoDir.mkdirs();
         
         List<Long> list = asConn.getObjects(irepo, TYPE.resources);
+        int count = 0;
         for(long objid : list) {
             try {
-                processResource(repoDir, irepo, objid);
+                String rheader = String.format("%s; Resource %d of %d", header, ++count, list.size());
+                processResource(repoDir, irepo, objid, rheader);
             } catch (SAXException e) {
                 System.out.println(" *** " + e.getMessage());
             } catch (ParserConfigurationException e) {
@@ -118,14 +121,14 @@ public class CreateIngestFolders extends ASDriver {
         }        
     }
     
-    public void processResource(File repoDir, int irepo, long objid) throws ClientProtocolException, URISyntaxException, IOException, SAXException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public void processResource(File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, SAXException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         JSONObject obj = asConn.getPublishedObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             return;
         }
         ASResource asRes = new ASResource(obj);
         String id = asRes.getID(String.format("res_%d", objid));
-        System.out.println(id);
+        System.out.println(String.format("%s: %s", rheader, id));
         
         File objDir = new File(repoDir, id);
         objDir.mkdirs();
