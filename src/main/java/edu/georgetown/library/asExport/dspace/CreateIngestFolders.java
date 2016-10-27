@@ -47,6 +47,7 @@ public class CreateIngestFolders extends ASDriver {
             asCmdLine.addRepos();
             ASParsedCommandLine cmdLine = asCmdLine.parse(args);
             CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
+            System.out.println("Process Repos");
             createIngestFolders.processRepos();        
         } catch (ClientProtocolException e) {
             e.printStackTrace();
