@@ -29,9 +29,13 @@ public class ASDriver {
 
   public ASDriver(ASParsedCommandLine cmdLine) throws DataException, FileNotFoundException, IOException, URISyntaxException, ParseException {
       this.cmdLine = cmdLine;
+      System.err.println("b1");
       File propFile = cmdLine.getPropertyFile();
+      System.err.println("b2");
       this.prop = new AS2DSpaceProperties(propFile);
+      System.err.println("b3");
       asConn = new ASConnection(prop);    
+      System.err.println("b4");
   }
   
   public String getObjectUri(int repo, TYPE type, long objid) throws DataException {

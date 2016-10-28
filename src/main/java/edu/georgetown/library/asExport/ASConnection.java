@@ -45,8 +45,11 @@ public class ASConnection {
 	  this.root = prop.getService();
       this.user = prop.getUser();
 	  this.pass = prop.getPassword();
+      System.err.println("c1");
       client = HttpClients.createDefault();
+      System.err.println("c2");
 	  login();
+      System.err.println("c3");
   }
   
   public boolean login() throws URISyntaxException, ClientProtocolException, IOException, ParseException {
@@ -57,10 +60,15 @@ public class ASConnection {
     loginuri.addParameter("password", pass);
     
     loginmethod.setURI(loginuri.build());
+    System.err.println("d1");
+
     CloseableHttpResponse loginresp = client.execute(loginmethod);
+    System.err.println("d2");
     
     String json = EntityUtils.toString(loginresp.getEntity(), "UTF-8");
+    System.err.println("d3");
     JSONObject loginObject = (JSONObject)parser.parse(json);
+    System.err.println("d4");
     sessionId = loginObject.get("session").toString();
     return true;
   }
