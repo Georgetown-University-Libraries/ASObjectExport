@@ -27,6 +27,16 @@ public class ASParsedCommandLine {
         }
     }
 
+    public int getMaxItemPerRepo() throws DataException {
+        String maxitem = cmdLine.getOptionValue(ASCommandLineSpec.OPT_MAXITEM, "0");
+        try {
+            return Integer.parseInt(maxitem);
+        } catch (NumberFormatException e) {
+            throw new DataException(String.format("Max item per repo [%s] must be an integer", maxitem));
+        }
+    }
+
+    
     public long getObjectId() throws DataException {
         String s = cmdLine.getOptionValue(ASCommandLineSpec.OPT_OBJ, "");
         if (s.isEmpty()) throw new DataException("Object id cannot be blank");

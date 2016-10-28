@@ -15,6 +15,7 @@ public class ASCommandLineSpec {
     public static final String OPT_REPO     = "repo";
     public static final String OPT_OBJ      = "obj";
     public static final String OPT_MODDATE  = "moddate";
+    public static final String OPT_MAXITEM  = "maxitem";
     
     private Options options = new Options();
     private String commandClass;
@@ -28,6 +29,7 @@ public class ASCommandLineSpec {
     
     public ASCommandLineSpec addRepos() {
         options.addOption(OPT_REPOS, true, "Repository List (comma separated) or blank for all");
+        options.addOption(OPT_MAXITEM, true, "Maximum number of items to process per repo");
         return this;
     }
 

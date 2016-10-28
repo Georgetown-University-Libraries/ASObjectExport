@@ -43,17 +43,12 @@ public class CreateIngestFolders extends ASDriver {
      */
     public static void main(String[] args) {
         try {
-            System.out.println("1");
             ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
-            System.err.println("2");
             asCmdLine.addRepos();
-            System.err.println("3");
             ASParsedCommandLine cmdLine = asCmdLine.parse(args);
-            System.err.println("4");
             CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
-            System.err.println("Process Repos");
+            System.out.println("Process Repos");
             createIngestFolders.processRepos();        
-            System.err.println("5");
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {
@@ -69,27 +64,21 @@ public class CreateIngestFolders extends ASDriver {
     
     private OutputStream os;
     private int[] irepos;
+    int maxitem = 0;
     private File outDir;
     private File rptDir;
     private String dateStr;
     
     public CreateIngestFolders(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
         super(cmdLine);
-        System.err.println("4a");
         String repList = cmdLine.getRepositoryList();
-        System.err.println("4b");
         irepos = repList.isEmpty() ? prop.getRepositories() : ASProperties.getIntList("The repos parameter", repList);
-        System.err.println("4c");
+        maxitem = cmdLine.getMaxItemPerRepo();
         outDir = prop.resetOutputDir();
-        System.err.println("4d");
         rptDir = prop.getReportDir();
-        System.err.println("4e");
         File f = new File(rptDir, "AS.report.csv");
-        System.err.println("4g");
         os = new FileOutputStream(f);        
-        System.err.println("4g");
         DateFormat df = new SimpleDateFormat("YYYYMMdd");
-        System.err.println("4h");
         dateStr = df.format(new Date());
 
     }
@@ -114,8 +103,10 @@ public class CreateIngestFolders extends ASDriver {
         List<Long> list = asConn.getObjects(irepo, TYPE.resources);
         int count = 0;
         for(long objid : list) {
+            count++;
+            if (maxitem > 0 && count > maxitem) break;
             try {
-                String rheader = String.format("%s; Resource %d of %d", header, ++count, list.size());
+                String rheader = String.format("%s; Resource %d of %d", header, count, list.size());
                 processResource(repoDir, irepo, objid, rheader);
             } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
