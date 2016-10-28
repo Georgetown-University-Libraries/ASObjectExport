@@ -4,10 +4,8 @@ import org.apache.http.client.ClientProtocolException;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,6 +29,8 @@ import edu.georgetown.library.asExport.ASProperties;
 import edu.georgetown.library.asExport.ASResource;
 import edu.georgetown.library.asExport.DataException;
 import edu.georgetown.library.asExport.FORMAT;
+import edu.georgetown.library.asExport.ResourceReport;
+import edu.georgetown.library.asExport.ResourceStatus;
 import edu.georgetown.library.asExport.TYPE;
 
 public class CreateIngestFolders extends ASDriver {
@@ -62,7 +62,7 @@ public class CreateIngestFolders extends ASDriver {
         }
     }
     
-    private OutputStream os;
+    File frpt;
     private int[] irepos;
     int maxitem = 0;
     private File outDir;
@@ -76,26 +76,27 @@ public class CreateIngestFolders extends ASDriver {
         maxitem = cmdLine.getMaxItemPerRepo();
         outDir = prop.resetOutputDir();
         rptDir = prop.getReportDir();
-        File f = new File(rptDir, "AS.report.csv");
-        os = new FileOutputStream(f);        
+        frpt = new File(rptDir, "AS.report.csv");
         DateFormat df = new SimpleDateFormat("YYYYMMdd");
         dateStr = df.format(new Date());
 
     }
 
     public void processRepos() throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
-        processRepos(irepos);
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(frpt))){
+            processRepos(bw, irepos);
+        }
     }
-    public void processRepos(int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
+    public void processRepos(BufferedWriter bw, int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
         File ingestDir = new File(outDir, "ingest");
         ingestDir.mkdirs();
         int count = 0;
         for(int irepo: repos){
-            processRepo(ingestDir, irepo, String.format("Repo %d of %d", ++count, repos.length));
-        }      
+            processRepo(bw, ingestDir, irepo, String.format("Repo %d of %d", ++count, repos.length));
+        }
     }
     
-    public void processRepo(File ingestDir, int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
+    public void processRepo(BufferedWriter bw, File ingestDir, int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
         String repoName = prop.getRepoHandle(irepo).replaceAll("[/\\s]", "_");
         File repoDir = new File(ingestDir, repoName);
         repoDir.mkdirs();
@@ -107,7 +108,7 @@ public class CreateIngestFolders extends ASDriver {
             if (maxitem > 0 && count > maxitem) break;
             try {
                 String rheader = String.format("%s; Resource %d of %d", header, count, list.size());
-                processResource(repoDir, irepo, objid, rheader);
+                processResource(bw, repoDir, irepo, objid, rheader);
             } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -124,7 +125,7 @@ public class CreateIngestFolders extends ASDriver {
         }        
     }
     
-    public void processResource(File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public void processResource(BufferedWriter bw, File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         JSONObject obj = asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             System.out.println(String.format(" *** Object not found - skipping"));
@@ -132,31 +133,37 @@ public class CreateIngestFolders extends ASDriver {
         }
         ASResource asRes = new ASResource(obj);
         String id = asRes.getID(String.format("res_%d", objid));
+        ResourceReport rrpt = new ResourceReport(id, asRes.isPublished());
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
-        if (!asRes.isPublished()) {
-            System.out.println(String.format(" *** Unpublished resource [%s] - skipping", id));
-            return;
-        }
-        
         try {
-            //Attempt to parse and report on document before creating folder.  Only create folder if parse-able.
-            Document d = asConn.getEADXML(irepo,  objid);
-            dumpEAD(d, os);
+            if (asRes.isPublished()) {
+                //Attempt to parse and report on document before creating folder.  Only create folder if parse-able.
+                Document d = asConn.getEADXML(irepo,  objid);
+                rrpt.setParsedValues(dumpEAD(d));
 
-            File objDir = new File(repoDir, id);
-            objDir.mkdirs();
-            
-            convertEAD(d, new File(objDir, "dublin_core.xml"), irepo, objid);
-            File eadFile = new File(objDir, String.format("ead.%s.%s.pdf", id, dateStr));
-            asConn.saveResourceFile(irepo, objid, FORMAT.pdf, eadFile);
+                File objDir = new File(repoDir, id);
+                objDir.mkdirs();
                 
-            File contentsFile = new File(objDir, "contents");
-            try(BufferedWriter bw = new BufferedWriter(new FileWriter(contentsFile))) {
-                bw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
-            }                    
+                convertEAD(d, new File(objDir, "dublin_core.xml"), irepo, objid);
+                File eadFile = new File(objDir, String.format("ead.%s.%s.pdf", id, dateStr));
+                asConn.saveResourceFile(irepo, objid, FORMAT.pdf, eadFile);
+                    
+                File contentsFile = new File(objDir, "contents");
+                try(BufferedWriter contentsbw = new BufferedWriter(new FileWriter(contentsFile))) {
+                    contentsbw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
+                }
+                rrpt.setStatus(ResourceStatus.Published);
+            }        
         } catch (SAXException e) {
-            System.err.println(String.format(" *** Skipping [%s]: %s", id, e.getMessage()));            
+            rrpt.setStatus(ResourceStatus.Unparsed);                
+        } finally {
+            ResourceStatus status = rrpt.getStatus(); 
+            if (status != ResourceStatus.Published) {
+                System.out.println(String.format(" *** %s - skipping", status.toString()));                    
+            }
+            bw.write(rrpt.asCSV());
+            bw.flush();
         }
     }
 

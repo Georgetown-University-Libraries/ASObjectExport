@@ -10,7 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import javax.xml.transform.Transformer;
@@ -56,10 +56,11 @@ public class ASDriver {
       }
   }
 
-  public void dumpEAD(Document d, OutputStream os) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException{
+  public String dumpEAD(Document d) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException{
       InputStream is = this.getClass().getClassLoader().getResourceAsStream("edu/georgetown/library/asExport/eadReport.xsl");
-      TransformerFactory.newInstance().newTransformer(new StreamSource(is)).transform(new DOMSource(d), new StreamResult(os));
-      System.out.flush();
+      StringWriter sw = new StringWriter();
+      TransformerFactory.newInstance().newTransformer(new StreamSource(is)).transform(new DOMSource(d), new StreamResult(sw));
+      return sw.toString();
   }
 
 }

@@ -1,10 +1,12 @@
 package edu.georgetown.library.asExport;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,6 +23,7 @@ import org.xml.sax.SAXException;
 public class ASObjectDriver extends ASDriver {
 
     OutputStream os;
+    BufferedWriter bw;
     public ASObjectDriver(ASParsedCommandLine cmdLine)
             throws DataException, FileNotFoundException, IOException, URISyntaxException, ParseException {
         super(cmdLine);
@@ -29,6 +32,7 @@ public class ASObjectDriver extends ASDriver {
         rptDir.mkdirs();
         File f = new File(rptDir, "AS.report.csv");
         os = new FileOutputStream(f);
+        bw = new BufferedWriter(new OutputStreamWriter(os));
     }
 
     public static void main(String[] args) {
@@ -75,7 +79,7 @@ public class ASObjectDriver extends ASDriver {
             d = asConn.getEADXML(repo, objid);
             saveEAD(d, new File("test.xml"));
             convertEAD(d, new File("test.fmt.xml"), repo, objid);
-            dumpEAD(d, os);
+            bw.write(dumpEAD(d));
         } catch (SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
