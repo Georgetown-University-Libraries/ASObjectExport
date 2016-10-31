@@ -9,13 +9,14 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 public class ASCommandLineSpec {
-    public static final String OPT_HELP     = "h";
-    public static final String OPT_PROP     = "prop";
-    public static final String OPT_REPOS    = "repos";
-    public static final String OPT_REPO     = "repo";
-    public static final String OPT_OBJ      = "obj";
-    public static final String OPT_MODDATE  = "moddate";
-    public static final String OPT_MAXITEM  = "maxitem";
+    public static final String OPT_HELP       = "h";
+    public static final String OPT_PROP       = "prop";
+    public static final String OPT_REPOS      = "repos";
+    public static final String OPT_REPO       = "repo";
+    public static final String OPT_OBJ        = "obj";
+    public static final String OPT_MODDATE    = "moddate";
+    public static final String OPT_MAXITEM    = "maxitem";
+    public static final String OPT_INVENTORY  = "inventory";
     
     private Options options = new Options();
     private String commandClass;
@@ -43,6 +44,12 @@ public class ASCommandLineSpec {
             grp.addOption(new Option(t.name(), t.name()));
         }
         options.addOptionGroup(grp);
+        return this;
+    }
+    
+    public ASCommandLineSpec addInventory() {
+        options.addOption(OPT_INVENTORY, true, "Inventory File");
+        options.getOption(OPT_INVENTORY).setRequired(true);
         return this;
     }
     

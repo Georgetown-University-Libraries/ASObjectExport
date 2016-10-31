@@ -29,8 +29,7 @@ public class ASDriver {
 
   public ASDriver(ASParsedCommandLine cmdLine) throws DataException, FileNotFoundException, IOException, URISyntaxException, ParseException {
       this.cmdLine = cmdLine;
-      File propFile = cmdLine.getPropertyFile();
-      this.prop = new AS2DSpaceProperties(propFile);
+      this.prop = cmdLine.getPropertyFile();
       asConn = new ASConnection(prop);    
   }
   

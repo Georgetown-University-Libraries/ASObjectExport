@@ -14,10 +14,15 @@ public class ResourceReport {
   private String date      = "";
   private String subjects  = "";
   private ResourceStatus status;
+  private String note = "";
   
   public ResourceReport(String id, boolean published) {
     this.id = id;
-    this.status = published ? ResourceStatus.Unparsed : ResourceStatus.Unpublished;
+    if (published) {
+        setStatus(ResourceStatus.Unparsed, "Not yet parsed");
+    } else {
+        setStatus(ResourceStatus.Unpublished, "Finding Aid is not published in ArchivesSpace");
+    }
   }
   
   public void setParsedValues(String csv) throws IOException {
@@ -28,18 +33,30 @@ public class ResourceReport {
     status = ResourceStatus.Parsed;
   }
   
-  public void setStatus(ResourceStatus rs) {
+  public void setStatus(ResourceStatus rs, String note) {
       this.status = rs;
+      this.note =  note;
   }
   
   public String asCSV() throws IOException {
       StringBuilder sb = new StringBuilder();
       try(CSVPrinter cp = new CSVPrinter(sb, CSVFormat.DEFAULT)){
-          cp.printRecord(id, status, title, date, subjects);          
+          cp.printRecord(id, getStatusText(), title, date, subjects);          
       };
       return sb.toString();
   }
   public ResourceStatus getStatus() {
       return status;
+  }
+  
+  public String getStatusText() {
+      if (note.isEmpty()) {
+          return status.name();
+      }
+      return String.format("%s (%s)", status.name(), note);
+  }
+  
+  public String getNote() {
+      return note;
   }
 }

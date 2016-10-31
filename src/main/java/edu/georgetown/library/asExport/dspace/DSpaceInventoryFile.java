@@ -47,6 +47,10 @@ public class DSpaceInventoryFile {
     public InventoryRecord get(int repoid, long objid) {
         return getRepoInventory(repoid).get(objid);
     }
+    
+    public boolean isInInventory(int repoid, long objid) {
+        return get(repoid, objid) != null;
+    }
 
     public int count() {
         int count = 0;

@@ -1,22 +1,35 @@
 package edu.georgetown.library.asExport;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
+
+import edu.georgetown.library.asExport.dspace.AS2DSpaceProperties;
+import edu.georgetown.library.asExport.dspace.DSpaceInventoryFile;
 
 public class ASParsedCommandLine {
     private CommandLine cmdLine;
     public ASParsedCommandLine(CommandLine cmdLine) {
         this.cmdLine = cmdLine;
     }
-    public File getPropertyFile() throws DataException {
+    public AS2DSpaceProperties getPropertyFile() throws DataException, FileNotFoundException, IOException {
         String fname = cmdLine.getOptionValue(ASCommandLineSpec.OPT_PROP, "");
         if (fname.isEmpty()) throw new DataException("Prop file cannot be blank");
         File propFile = new File(fname);
         if (!propFile.exists()) throw new DataException(String.format("Prop file [%s] does not exist", propFile));
-        return propFile;
+        return new AS2DSpaceProperties(propFile);
     }
     
+    public DSpaceInventoryFile getInventoryFile() throws DataException, IOException {
+        String fname = cmdLine.getOptionValue(ASCommandLineSpec.OPT_INVENTORY, "");
+        if (fname.isEmpty()) throw new DataException("Inventory file cannot be blank");
+        File invFile = new File(fname);
+        if (!invFile.exists()) throw new DataException(String.format("Inventory file [%s] does not exist", invFile));
+        return new DSpaceInventoryFile(invFile);
+    }
+
     public int getRepositoryId() throws DataException {
         String rep = cmdLine.getOptionValue(ASCommandLineSpec.OPT_REPO, "");
         if (rep.isEmpty()) throw new DataException("Repository id cannot be blank");

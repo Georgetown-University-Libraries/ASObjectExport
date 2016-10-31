@@ -33,35 +33,7 @@ import edu.georgetown.library.asExport.ResourceReport;
 import edu.georgetown.library.asExport.ResourceStatus;
 import edu.georgetown.library.asExport.TYPE;
 
-public class CreateIngestFolders extends ASDriver {
-
-    /*
-     * Args
-     *   prop filename
-     *   dspace finding aid inventory filename
-     *   list of repos to process (optional)
-     */
-    public static void main(String[] args) {
-        try {
-            ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
-            asCmdLine.addRepos();
-            ASParsedCommandLine cmdLine = asCmdLine.parse(args);
-            CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
-            System.out.println("Process Repos");
-            createIngestFolders.processRepos();        
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (DataException e) {
-            e.printStackTrace();
-        }
-    }
-    
+public class CreateIngestFolders extends ASDriver {   
     File frpt;
     private int[] irepos;
     int maxitem = 0;
@@ -69,6 +41,7 @@ public class CreateIngestFolders extends ASDriver {
     private File rptDir;
     private String dateStr;
     public static final DateFormat exportDateFormat = new SimpleDateFormat("YYYYMMdd");
+    private DSpaceInventoryFile dspaceInventory;
     
     public CreateIngestFolders(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
         super(cmdLine);
@@ -79,7 +52,7 @@ public class CreateIngestFolders extends ASDriver {
         rptDir = prop.getReportDir();
         frpt = new File(rptDir, "AS.report.csv");
         dateStr = exportDateFormat.format(new Date());
-
+        dspaceInventory = cmdLine.getInventoryFile();
     }
 
     public void processRepos() throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
@@ -137,7 +110,10 @@ public class CreateIngestFolders extends ASDriver {
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
         try {
-            if (asRes.isPublished()) {
+            if (dspaceInventory.isInInventory(irepo, objid)) {
+                InventoryRecord irec = dspaceInventory.get(irepo, objid);
+                rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
+            } else if (asRes.isPublished()) {
                 //Attempt to parse and report on document before creating folder.  Only create folder if parse-able.
                 Document d = asConn.getEADXML(irepo,  objid);
                 rrpt.setParsedValues(dumpEAD(d));
@@ -153,17 +129,43 @@ public class CreateIngestFolders extends ASDriver {
                 try(BufferedWriter contentsbw = new BufferedWriter(new FileWriter(contentsFile))) {
                     contentsbw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
                 }
-                rrpt.setStatus(ResourceStatus.Published);
+                rrpt.setStatus(ResourceStatus.Published, "");
             }        
         } catch (SAXException e) {
-            rrpt.setStatus(ResourceStatus.Unparsed);                
+            rrpt.setStatus(ResourceStatus.Unparsed, e.getMessage());                
         } finally {
-            ResourceStatus status = rrpt.getStatus(); 
-            if (status != ResourceStatus.Published) {
-                System.out.println(String.format(" *** %s - skipping", status.toString()));                    
+            if (rrpt.getStatus() != ResourceStatus.Published) {
+                System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));                    
             }
             bw.write(rrpt.asCSV());
             bw.flush();
+        }
+    }
+
+    /*
+     * Args
+     *   prop filename
+     *   dspace finding aid inventory filename
+     *   list of repos to process (optional)
+     */
+    public static void main(String[] args) {
+        try {
+            ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
+            asCmdLine.addRepos().addInventory();
+            ASParsedCommandLine cmdLine = asCmdLine.parse(args);
+            CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
+            System.out.println("Process Repos");
+            createIngestFolders.processRepos();        
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (DataException e) {
+            e.printStackTrace();
         }
     }
 
