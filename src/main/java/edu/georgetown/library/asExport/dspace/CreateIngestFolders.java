@@ -68,6 +68,7 @@ public class CreateIngestFolders extends ASDriver {
     private File outDir;
     private File rptDir;
     private String dateStr;
+    public static final DateFormat exportDateFormat = new SimpleDateFormat("YYYYMMdd");
     
     public CreateIngestFolders(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
         super(cmdLine);
@@ -77,8 +78,7 @@ public class CreateIngestFolders extends ASDriver {
         outDir = prop.resetOutputDir();
         rptDir = prop.getReportDir();
         frpt = new File(rptDir, "AS.report.csv");
-        DateFormat df = new SimpleDateFormat("YYYYMMdd");
-        dateStr = df.format(new Date());
+        dateStr = exportDateFormat.format(new Date());
 
     }
 
