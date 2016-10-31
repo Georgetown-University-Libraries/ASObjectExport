@@ -26,8 +26,7 @@ public class DSpaceInventoryFile {
             if (rec.getRecordNumber() == 1) continue;
             try {
                 InventoryRecord invRec = new InventoryRecord(rec);
-                HashMap<Long,InventoryRecord> repoRecs = inventoryMap.getOrDefault(invRec.getFindingAidRepo(), new HashMap<Long, InventoryRecord>());
-                inventoryMap.put(invRec.getFindingAidRepo(), repoRecs);
+                HashMap<Long,InventoryRecord> repoRecs = getRepoInventory(invRec.getFindingAidRepo());
                 repoRecs.put(invRec.getFindingAidResourceId(), invRec);
             } catch (DataException | ParseException e) {
                 System.err.println(String.format("Error parsing inventory: %s", e.getMessage()));
@@ -35,8 +34,18 @@ public class DSpaceInventoryFile {
         }        
     }
     
+    public HashMap<Long,InventoryRecord> getRepoInventory(int repo) {
+        HashMap<Long, InventoryRecord> repoRecs = inventoryMap.get(repo);
+        if (repoRecs == null){
+            repoRecs = new HashMap<Long, InventoryRecord>();
+            inventoryMap.put(repo,  repoRecs);
+        }
+        return repoRecs;
+    }
+    
+    
     public InventoryRecord get(int repoid, long objid) {
-        return inventoryMap.getOrDefault(repoid, new HashMap<Long, InventoryRecord>()).get(objid);
+        return getRepoInventory(repoid).get(objid);
     }
 
     public int count() {
