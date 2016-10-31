@@ -53,19 +53,23 @@ public class ASCommandLineSpec {
         return this;
     }
     
+    public void usage() {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(commandClass, options);        
+    }
+    
     public ASParsedCommandLine parse(String[] args) {
         DefaultParser clParse = new DefaultParser();
-        HelpFormatter formatter = new HelpFormatter();
         try {
             CommandLine cmdLine = clParse.parse(options, args);
             if (cmdLine.hasOption(OPT_HELP)) {
-                formatter.printHelp(commandClass, options);
+                usage();
                 System.exit(0);
             }
             return new ASParsedCommandLine(cmdLine);
         } catch (ParseException e) {
             System.err.println(e.getMessage());
-            formatter.printHelp(commandClass, options);
+            usage();
             System.exit(1);
         }
         return null;

@@ -149,9 +149,9 @@ public class CreateIngestFolders extends ASDriver {
      *   list of repos to process (optional)
      */
     public static void main(String[] args) {
+        ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
+        asCmdLine.addRepos().addInventory();
         try {
-            ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
-            asCmdLine.addRepos().addInventory();
             ASParsedCommandLine cmdLine = asCmdLine.parse(args);
             CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
             System.out.println("Process Repos");
@@ -165,7 +165,9 @@ public class CreateIngestFolders extends ASDriver {
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (DataException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            System.err.println();
+            asCmdLine.usage();
         }
     }
 
