@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -26,6 +28,7 @@ public class ASDriver {
   protected ASParsedCommandLine cmdLine;
   protected ASConnection asConn;
   protected AS2DSpaceProperties prop;
+  public static final DateFormat exportDateFormat = new SimpleDateFormat("YYYYMMdd");
 
   public ASDriver(ASParsedCommandLine cmdLine) throws DataException, FileNotFoundException, IOException, URISyntaxException, ParseException {
       this.cmdLine = cmdLine;

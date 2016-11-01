@@ -2,13 +2,11 @@ package edu.georgetown.library.asExport.dspace;
 
 import org.apache.http.client.ClientProtocolException;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -32,7 +30,7 @@ import edu.georgetown.library.asExport.ResourceReportIngestRecord;
 import edu.georgetown.library.asExport.ResourceStatus;
 import edu.georgetown.library.asExport.TYPE;
 
-public class CreateIngestFolders extends ASDriver {   
+public class CreateUpdateFolders extends ASDriver {   
     ResourceReport frpt;
     private int[] irepos;
     int maxitem = 0;
@@ -40,8 +38,9 @@ public class CreateIngestFolders extends ASDriver {
     private File rptDir;
     private String dateStr;
     private DSpaceInventoryFile dspaceInventory;
+    Date moddate;
     
-    public CreateIngestFolders(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
+    public CreateUpdateFolders(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
         super(cmdLine);
         String repList = cmdLine.getRepositoryList();
         irepos = repList.isEmpty() ? prop.getRepositories() : ASProperties.getIntList("The repos parameter", repList);
@@ -51,6 +50,7 @@ public class CreateIngestFolders extends ASDriver {
         frpt = new ResourceReport(new File(rptDir, "AS.report.csv"));
         dateStr = ASDriver.exportDateFormat.format(new Date());
         dspaceInventory = cmdLine.getInventoryFile();
+        moddate = cmdLine.getModdate();
     }
 
     public void processRepos() throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
@@ -59,27 +59,30 @@ public class CreateIngestFolders extends ASDriver {
         frpt.close();
     }
     public void processRepos(int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
-        File ingestDir = new File(outDir, "ingest");
-        ingestDir.mkdirs();
+        File updateDir = new File(outDir, "update");
+        updateDir.mkdirs();
         int count = 0;
         for(int irepo: repos){
-            processRepo(ingestDir, irepo, String.format("Repo %d of %d", ++count, repos.length));
+            processRepo(updateDir, irepo, String.format("Repo %d of %d", ++count, repos.length));
         }
     }
     
-    public void processRepo(File ingestDir, int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
+    public void processRepo(File updateDir, int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
         String repoName = prop.getRepoHandle(irepo).replaceAll("[/\\s]", "_");
-        File repoDir = new File(ingestDir, repoName);
+        File repoDir = new File(updateDir, repoName);
         repoDir.mkdirs();
         
-        List<Long> list = asConn.getObjects(irepo, TYPE.resources);
+        HashMap<Long, InventoryRecord> inventory = dspaceInventory.getRepoInventory(irepo);
         int count = 0;
-        for(long objid : list) {
+        for(long objid: inventory.keySet()) {
             count++;
             if (maxitem > 0 && count > maxitem) break;
+            InventoryRecord invRec = inventory.get(objid);
+            Date faDate = invRec.getFindingAidExportDate();
+            String datestr = faDate == null ? "No Date" : ASDriver.exportDateFormat.format(faDate);
             try {
-                String rheader = String.format("%s; Resource %d of %d", header, count, list.size());
-                processResource(repoDir, irepo, objid, rheader);
+                String rheader = String.format("%s; Resource %d of %d [%s]", header, count, inventory.size(), datestr);
+                processResource(repoDir, irepo, objid, rheader, faDate);
             } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -93,10 +96,10 @@ public class CreateIngestFolders extends ASDriver {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }   
-        }        
+        }
     }
     
-    public void processResource(File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public void processResource(File repoDir, int irepo, long objid, String rheader, Date faDate) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         JSONObject obj = asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             System.out.println(String.format(" *** Object not found - skipping"));
@@ -108,12 +111,11 @@ public class CreateIngestFolders extends ASDriver {
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
         try {
-            if (dspaceInventory.isInInventory(irepo, objid)) {
-                InventoryRecord irec = dspaceInventory.get(irepo, objid);
-                rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
+            if (faDate != null && moddate.compareTo(faDate) < 0) {
+                rrpt.setStatus(ResourceStatus.Skipped, String.format("Item was last updated on [%s]", ASDriver.exportDateFormat.format(faDate)));
             } else if (asRes.isPublished()) {
                 //Attempt to parse and report on document before creating folder.  Only create folder if parse-able.
-                Document d = asConn.getEADXML(irepo,  objid);
+                Document d = asConn.getEADXML(irepo, objid);
                 rrpt.setParsedValues(dumpEAD(d));
 
                 File objDir = new File(repoDir, id);
@@ -127,13 +129,9 @@ public class CreateIngestFolders extends ASDriver {
                     rrpt.setStatus(ResourceStatus.ExportFailure, e.getMessage());
                 }
                     
-                File contentsFile = new File(objDir, "contents");
-                try(BufferedWriter contentsbw = new BufferedWriter(new FileWriter(contentsFile))) {
-                    contentsbw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
-                }
                 rrpt.setStatus(ResourceStatus.Published, "");
             }        
-        } catch (SAXException e) {
+        } catch (DataException | SAXException e) {
             rrpt.setStatus(ResourceStatus.Unparsed, e.getMessage());                
         } finally {
             if (rrpt.getStatus() != ResourceStatus.Published) {
@@ -150,13 +148,13 @@ public class CreateIngestFolders extends ASDriver {
      *   list of repos to process (optional)
      */
     public static void main(String[] args) {
-        ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateIngestFolders.class.getName());
-        asCmdLine.addRepos().addInventory();
+        ASCommandLineSpec asCmdLine = new ASCommandLineSpec(CreateUpdateFolders.class.getName());
+        asCmdLine.addRepos().addInventory().addModdate();
         try {
             ASParsedCommandLine cmdLine = asCmdLine.parse(args);
-            CreateIngestFolders createIngestFolders = new CreateIngestFolders(cmdLine);
+            CreateUpdateFolders createUpdateFolders = new CreateUpdateFolders(cmdLine);
             System.out.println("Process Repos");
-            createIngestFolders.processRepos();        
+            createUpdateFolders.processRepos();        
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {

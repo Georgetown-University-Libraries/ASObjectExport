@@ -26,11 +26,16 @@ public class ResourceReportIngestRecord implements ResourceReportRecord {
     }
   }
   
-  public void setParsedValues(String csv) throws IOException {
-    CSVRecord rec = CSVParser.parse(csv, CSVFormat.DEFAULT).getRecords().get(0);
-    if (rec.size() > 1) title = rec.get(1);
-    if (rec.size() > 2) date = rec.get(2);
-    if (rec.size() > 3) subjects = rec.get(3);
+  public void setParsedValues(String csv) throws IOException, DataException {
+    if (csv.isEmpty()) return;
+    try {
+        CSVRecord rec = CSVParser.parse(csv, CSVFormat.DEFAULT).getRecords().get(0);        
+        if (rec.size() > 1) title = rec.get(1);
+        if (rec.size() > 2) date = rec.get(2);
+        if (rec.size() > 3) subjects = rec.get(3);
+    } catch(IOException e) {
+        throw new DataException(String.format("CSV Parse error for [%s]", csv));
+    }
     setStatus(ResourceStatus.Parsed, "");
   }
   

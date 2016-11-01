@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVRecord;
 
+import edu.georgetown.library.asExport.ASDriver;
 import edu.georgetown.library.asExport.DataException;
 
 public class InventoryRecord {
@@ -38,7 +39,7 @@ public class InventoryRecord {
             objid = Long.parseLong(m.group(2));
         }
         if (!dateStr.isEmpty()) {
-            date = CreateIngestFolders.exportDateFormat.parse(dateStr);
+            date = ASDriver.exportDateFormat.parse(dateStr);
         }
     }
     

@@ -34,6 +34,11 @@ public class ASCommandLineSpec {
         return this;
     }
 
+    public ASCommandLineSpec addModdate() {
+        options.addOption(OPT_MODDATE, true, "Replace items last updated before this date YYYYMMDD");
+        return this;
+    }
+
     public ASCommandLineSpec addRepoTypeObject() {
         options.addOption(OPT_REPO, true, "Repository id");
         options.getOption(OPT_REPO).setRequired(true);

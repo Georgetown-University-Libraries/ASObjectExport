@@ -3,6 +3,8 @@ package edu.georgetown.library.asExport;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 
@@ -71,5 +73,17 @@ public class ASParsedCommandLine {
 
     public String getRepositoryList() {
         return cmdLine.getOptionValue(ASCommandLineSpec.OPT_REPOS, "");
+    }
+    
+    public Date getModdate() throws DataException {
+        String moddate = cmdLine.getOptionValue(ASCommandLineSpec.OPT_MODDATE, "");
+        if (moddate.isEmpty()) {
+            throw new DataException("moddate cannot be blank");
+        }
+        try {
+            return ASDriver.exportDateFormat.parse(moddate);
+        } catch (ParseException e) {
+            throw new DataException(String.format("moddate [%s] must be in YYYYMMDD format", moddate));
+        }
     }
 }

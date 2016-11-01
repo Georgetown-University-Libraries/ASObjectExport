@@ -9,7 +9,9 @@
       <xsl:text>,</xsl:text>
       
       <xsl:text>&quot;</xsl:text>
-      <xsl:value-of select="//titlestmt/titleproper/text()"/>
+      <xsl:variable name="q">"</xsl:variable>
+      <xsl:variable name="a">'</xsl:variable>
+      <xsl:value-of select="translate(//titlestmt/titleproper/text(),$q,$a)"/>
       <xsl:text>&quot;</xsl:text>
       <xsl:text>,</xsl:text>
       
@@ -31,7 +33,6 @@
         <xsl:text>; </xsl:text>
       </xsl:for-each>
       <xsl:text>&quot;</xsl:text>
-      <xsl:text>&#10;</xsl:text>
     </xsl:template>
    
 </xsl:stylesheet>
