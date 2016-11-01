@@ -41,7 +41,7 @@ public class ResourceReportIngestRecord implements ResourceReportRecord {
   
   public static final String[] HEADER = {"Finding Aid ID", "Report Status", "Title", "Finding Aid Date", "Finding Aid Subjects"}; 
   public static String getReportHeader() {
-      return String.join(",", HEADER);
+      return String.join(",", ResourceReportIngestRecord.HEADER);
   }
   
   public String asCSV() throws IOException {
