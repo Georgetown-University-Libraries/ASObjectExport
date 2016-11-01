@@ -39,9 +39,8 @@ public class ResourceReportIngestRecord implements ResourceReportRecord {
       this.note =  note;
   }
   
-  public static final String[] HEADER = {"Finding Aid ID", "Report Status", "Title", "Finding Aid Date", "Finding Aid Subjects"}; 
   public static String getReportHeader() {
-      return String.join(",", ResourceReportIngestRecord.HEADER);
+      return "Finding Aid ID,Report Status,Title,Finding Aid Date,Finding Aid Subjects";
   }
   
   public String asCSV() throws IOException {
