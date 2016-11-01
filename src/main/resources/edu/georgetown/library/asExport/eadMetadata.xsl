@@ -9,55 +9,73 @@
     
     <xsl:template match="/ead">
       <dublin_core schema="dc">
-        <dcvalue element="title" qualifier="none">
-          <xsl:value-of select="//titlestmt/titleproper/text()"/>
-        </dcvalue>
+        <xsl:if test="//titlestmt/titleproper/text()">
+          <dcvalue element="title" qualifier="none">
+            <xsl:value-of select="//titlestmt/titleproper/text()"/>
+          </dcvalue>
+        </xsl:if>
         
-        <dcvalue element="identifier" qualifier="other">
-          <xsl:value-of select="//unitid"/>
-        </dcvalue>
- 
+        <xsl:if test="//unitid/text()">
+          <dcvalue element="identifier" qualifier="other">
+            <xsl:value-of select="//unitid/text()"/>
+          </dcvalue>
+        </xsl:if>
+        
         <dcvalue element="type">
           <xsl:text>Finding Aid</xsl:text>
         </dcvalue>
         
-        <dcvalue element="creator">
-          <xsl:value-of select="$creator"/>
-        </dcvalue>
-
-        <dcvalue element="contributor" qualifier="author">
-          <xsl:value-of select="$author"/>
-        </dcvalue>
+        <xsl:if test="$creator">
+          <dcvalue element="creator">
+            <xsl:value-of select="$creator"/>
+          </dcvalue>
+        </xsl:if>
         
-        <dcvalue element="rights">
-          <xsl:value-of select="$rights"/>
-        </dcvalue>
+        <xsl:if test="$author">
+          <dcvalue element="contributor" qualifier="author">
+            <xsl:value-of select="$author"/>
+          </dcvalue>
+        </xsl:if>
         
-        <dcvalue element="relation" qualifier="uri">
-          <xsl:value-of select="$uri"/>
-        </dcvalue>
-
-        <dcvalue element="date" qualifer="created">
-          <xsl:choose>
-            <xsl:when test="//unitdate[@type='inclusive']">
+        <xsl:if test="$rights">
+          <dcvalue element="rights">
+            <xsl:value-of select="$rights"/>
+          </dcvalue>
+        </xsl:if>
+        
+        <xsl:if test="$uri">
+          <dcvalue element="relation" qualifier="uri">
+            <xsl:value-of select="$uri"/>
+          </dcvalue>
+        </xsl:if>
+        
+        <xsl:choose>
+          <xsl:when test="//unitdate[@type='inclusive']">
+            <dcvalue element="date" qualifer="created">
               <xsl:value-of select="//unitdate[@type='inclusive']"/>
-            </xsl:when>
-            <xsl:otherwise>
+            </dcvalue>
+          </xsl:when>
+          <xsl:when test="//unitdate/text()">
+            <dcvalue element="date" qualifer="created">
               <xsl:value-of select="//unitdate/text()"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </dcvalue>
+            </dcvalue>
+          </xsl:when>
+        </xsl:choose>
         
         <xsl:for-each select="//controlaccess/subject|//controlaccess/genreform|//controlaccess/*">
-          <dcvalue element="subject">
-            <xsl:value-of select="text()"/>
-          </dcvalue>
+          <xsl:if test="text()">
+            <dcvalue element="subject">
+              <xsl:value-of select="text()"/>
+            </dcvalue>
+          </xsl:if>
         </xsl:for-each>
         
         <xsl:for-each select="//scopecontent/p">
+          <xsl:if test="text()">
             <dcvalue element="description]">
               <xsl:value-of select="normalize-space(text())"/>
             </dcvalue>
+          </xsl:if>
         </xsl:for-each>
         
       </dublin_core>
