@@ -2,7 +2,9 @@ package edu.georgetown.library.asExport.dspace;
 
 import org.apache.http.client.ClientProtocolException;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -129,6 +131,10 @@ public class CreateUpdateFolders extends ASDriver {
                     rrpt.setStatus(ResourceStatus.ExportFailure, e.getMessage());
                 }
                     
+                File contentsFile = new File(objDir, "contents");
+                try(BufferedWriter contentsbw = new BufferedWriter(new FileWriter(contentsFile))) {
+                    contentsbw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
+                }
                 rrpt.setStatus(ResourceStatus.Published, "");
             }        
         } catch (DataException | SAXException e) {
