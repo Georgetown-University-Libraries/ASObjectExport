@@ -30,11 +30,12 @@ import edu.georgetown.library.asExport.ASResource;
 import edu.georgetown.library.asExport.DataException;
 import edu.georgetown.library.asExport.FORMAT;
 import edu.georgetown.library.asExport.ResourceReport;
+import edu.georgetown.library.asExport.ResourceReportIngestRecord;
 import edu.georgetown.library.asExport.ResourceStatus;
 import edu.georgetown.library.asExport.TYPE;
 
 public class CreateIngestFolders extends ASDriver {   
-    File frpt;
+    ResourceReport frpt;
     private int[] irepos;
     int maxitem = 0;
     private File outDir;
@@ -50,26 +51,26 @@ public class CreateIngestFolders extends ASDriver {
         maxitem = cmdLine.getMaxItemPerRepo();
         outDir = prop.resetOutputDir();
         rptDir = prop.getReportDir();
-        frpt = new File(rptDir, "AS.report.csv");
+        frpt = new ResourceReport(new File(rptDir, "AS.report.csv"));
         dateStr = exportDateFormat.format(new Date());
         dspaceInventory = cmdLine.getInventoryFile();
     }
 
     public void processRepos() throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(frpt))){
-            processRepos(bw, irepos);
-        }
+        frpt.write(ResourceReportIngestRecord.getReportHeader());
+        processRepos(irepos);
+        frpt.close();
     }
-    public void processRepos(BufferedWriter bw, int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
+    public void processRepos(int[] repos) throws ClientProtocolException, URISyntaxException, IOException, NumberFormatException, DataException {
         File ingestDir = new File(outDir, "ingest");
         ingestDir.mkdirs();
         int count = 0;
         for(int irepo: repos){
-            processRepo(bw, ingestDir, irepo, String.format("Repo %d of %d", ++count, repos.length));
+            processRepo(ingestDir, irepo, String.format("Repo %d of %d", ++count, repos.length));
         }
     }
     
-    public void processRepo(BufferedWriter bw, File ingestDir, int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
+    public void processRepo(File ingestDir, int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
         String repoName = prop.getRepoHandle(irepo).replaceAll("[/\\s]", "_");
         File repoDir = new File(ingestDir, repoName);
         repoDir.mkdirs();
@@ -81,7 +82,7 @@ public class CreateIngestFolders extends ASDriver {
             if (maxitem > 0 && count > maxitem) break;
             try {
                 String rheader = String.format("%s; Resource %d of %d", header, count, list.size());
-                processResource(bw, repoDir, irepo, objid, rheader);
+                processResource(repoDir, irepo, objid, rheader);
             } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -98,7 +99,7 @@ public class CreateIngestFolders extends ASDriver {
         }        
     }
     
-    public void processResource(BufferedWriter bw, File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public void processResource(File repoDir, int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         JSONObject obj = asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             System.out.println(String.format(" *** Object not found - skipping"));
@@ -106,7 +107,7 @@ public class CreateIngestFolders extends ASDriver {
         }
         ASResource asRes = new ASResource(obj);
         String id = asRes.getID(String.format("res_%d", objid));
-        ResourceReport rrpt = new ResourceReport(id, asRes.isPublished());
+        ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, asRes.isPublished());
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
         try {
@@ -141,8 +142,7 @@ public class CreateIngestFolders extends ASDriver {
             if (rrpt.getStatus() != ResourceStatus.Published) {
                 System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));                    
             }
-            bw.write(rrpt.asCSV());
-            bw.flush();
+            frpt.writeRecord(rrpt);
         }
     }
 
