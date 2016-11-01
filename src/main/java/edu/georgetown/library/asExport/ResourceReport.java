@@ -40,7 +40,7 @@ public class ResourceReport {
   
   public String asCSV() throws IOException {
       StringBuilder sb = new StringBuilder();
-      try(CSVPrinter cp = new CSVPrinter(sb, CSVFormat.DEFAULT)){
+      try(CSVPrinter cp = new CSVPrinter(sb, CSVFormat.EXCEL)){
           cp.printRecord(id, getStatusText(), title, date, subjects);          
       };
       return sb.toString();
