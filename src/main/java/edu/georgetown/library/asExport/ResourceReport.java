@@ -30,7 +30,7 @@ public class ResourceReport {
     if (rec.size() > 1) title = rec.get(1);
     if (rec.size() > 2) date = rec.get(2);
     if (rec.size() > 3) subjects = rec.get(3);
-    status = ResourceStatus.Parsed;
+    setStatus(ResourceStatus.Parsed, "");
   }
   
   public void setStatus(ResourceStatus rs, String note) {

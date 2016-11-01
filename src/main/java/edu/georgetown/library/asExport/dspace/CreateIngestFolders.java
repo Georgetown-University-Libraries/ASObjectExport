@@ -123,7 +123,11 @@ public class CreateIngestFolders extends ASDriver {
                 
                 convertEAD(d, new File(objDir, "dublin_core.xml"), irepo, objid);
                 File eadFile = new File(objDir, String.format("ead.%s.%s.pdf", id, dateStr));
-                asConn.saveResourceFile(irepo, objid, FORMAT.pdf, eadFile);
+                try {
+                    asConn.saveResourceFile(irepo, objid, FORMAT.pdf, eadFile);
+                } catch(Exception e) {
+                    rrpt.setStatus(ResourceStatus.ExportFailure, e.getMessage());
+                }
                     
                 File contentsFile = new File(objDir, "contents");
                 try(BufferedWriter contentsbw = new BufferedWriter(new FileWriter(contentsFile))) {

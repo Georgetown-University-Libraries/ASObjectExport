@@ -4,6 +4,7 @@ public enum ResourceStatus {
     Unpublished,
     Unparsed,
     Parsed,
+    ExportFailure,
     Skipped,
     Published;
 }
