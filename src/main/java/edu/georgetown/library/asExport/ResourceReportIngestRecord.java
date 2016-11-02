@@ -45,7 +45,7 @@ public class ResourceReportIngestRecord implements ResourceReportRecord {
   }
   
   public static String getReportHeader() {
-      return "Finding Aid ID,Report Status,Title,Finding Aid Date,Finding Aid Subjects";
+      return "Finding Aid ID,Report Status,Title,Finding Aid Date,Finding Aid Subjects\r\n";
   }
   
   public String asCSV() throws IOException {
