@@ -28,7 +28,7 @@ public class ASDriver {
   protected ASParsedCommandLine cmdLine;
   protected ASConnection asConn;
   protected AS2DSpaceProperties prop;
-  public static final DateFormat exportDateFormat = new SimpleDateFormat("YYYYMMdd");
+  public static final DateFormat exportDateFormat = new SimpleDateFormat("yyyyMMdd");
 
   public ASDriver(ASParsedCommandLine cmdLine) throws DataException, FileNotFoundException, IOException, URISyntaxException, ParseException {
       this.cmdLine = cmdLine;

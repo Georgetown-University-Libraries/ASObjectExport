@@ -17,7 +17,7 @@ public class InventoryRecord {
     private String url        = "";
     private String filename   = "";
     private String dateStr    = "";
-    private Date date;
+    private Date date = null;
     private int repo = 0;
     private long objid = 0;
     
@@ -51,4 +51,12 @@ public class InventoryRecord {
     public Date getFindingAidExportDate() {return date;}
     public int getFindingAidRepo() {return repo;}
     public long getFindingAidResourceId() {return objid;}
+    
+    public static final void main(String[] args) {
+        try {
+            System.out.println(ASDriver.exportDateFormat.parse("20161101"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 }
