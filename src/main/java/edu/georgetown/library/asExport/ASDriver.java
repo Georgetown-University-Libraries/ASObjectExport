@@ -37,7 +37,7 @@ public class ASDriver {
   }
   
   public String getObjectUri(int repo, TYPE type, long objid) throws DataException {
-      return String.format("%s/repositories/%d/%s/%d", prop.getPubService(), repo, type.name(), objid);
+      return String.format("%srepositories/%d/%s/%d", prop.getPubService(), repo, type.name(), objid);
   }
 
   public void convertEAD(Document d, File f, int repo, long objid) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException, DataException{
