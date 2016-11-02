@@ -85,12 +85,16 @@ dpsace import -a -e {eperson} -c {dg-collection-handle} -s /.../as-ingest/{dg-co
 /.../as-update (path defined in the property file)
     /{resource-id}
         resource-ead.pdf
-        dublin_core.xml - contains dc.identifier.uri for the source item (used to itentify the object to update)
+        dublin_core.xml - contains dc.relation.uri for the source item (used to itentify the object to update)
 ```
 
 #### DSpace Update
 ```
-dspace itemupdate -e {eperson} -s /.../as-ingest/ -A -i dc.identifier.uri
+for REPODIR in ${UPDATEDIR}
+do
+  dspace itemupdate -e {eperson} -s ${REPODIR} -D ORIGINAL_AND_DERIVATIVES -i dc.relation.uri
+  dspace itemupdate -e {eperson} -s ${REPODIR} -A -i dc.relation.uri
+done
 ```
 
 ***
