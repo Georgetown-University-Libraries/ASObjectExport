@@ -74,4 +74,12 @@ public class ASDriver {
       return getStart() - start;
   }
 
+  public String formatDurationString(long ms) {
+      ms = ms/1000;
+      return String.format("%d:%02d:%02d", ms / 3600, (ms % 3600) / 60, ms % 60);
+  }
+  
+  public String getDurationString(long start) {
+      return formatDurationString(getDuration(start));
+  }
 }

@@ -64,7 +64,7 @@ public class ASObjectDriver extends ASDriver {
         
         JSONObject obj = asConn.getPublishedObject(repo, type, objid);
         if (obj != null) {
-            System.out.println(String.format("[%d] %s", objid, obj.toString()));
+            //System.out.println(String.format("[%d] %s", objid, obj.toString()));
             ASResource res = new ASResource(obj);
             System.out.println("Title         : "+res.getTitle());
             System.out.println("Date          : "+res.getDate());
@@ -84,17 +84,17 @@ public class ASObjectDriver extends ASDriver {
             
             File f = new File("test.xml");
             saveEAD(d, f);
-            System.out.println(String.format("File written: %s; %,d ms", f.getAbsolutePath(), getDuration(start)));
+            System.out.println(String.format("File written: %s; %s", f.getAbsolutePath(), getDurationString(start)));
             System.out.flush();
             f = new File("test.fmt.xml");
             convertEAD(d, f, repo, objid);
-            System.out.println(String.format("File written: %s; %,d ms", f.getAbsolutePath(), getDuration(start)));
+            System.out.println(String.format("File written: %s; %s", f.getAbsolutePath(), getDurationString(start)));
             System.out.flush();
             bw.write(dumpEAD(d));
             System.out.println(String.format("Download PDF EAD: %d/%d", repo, objid));
             File eadFile = new File(String.format("ead.%d.pdf", objid));
             asConn.saveResourceFile(repo, objid, FORMAT.pdf, eadFile);
-            System.out.println(String.format("File written: %s; %,d ms", eadFile.getAbsolutePath(), getDuration(start)));
+            System.out.println(String.format("File written: %s; %s", eadFile.getAbsolutePath(), getDurationString(start)));
             System.out.flush();
         } catch (SAXException e) {
             // TODO Auto-generated catch block
