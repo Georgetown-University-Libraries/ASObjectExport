@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
+import java.util.Date;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
@@ -77,9 +78,24 @@ public class ASObjectDriver extends ASDriver {
         Document d;
         try {
             d = asConn.getEADXML(repo, objid);
-            saveEAD(d, new File("test.xml"));
-            convertEAD(d, new File("test.fmt.xml"), repo, objid);
+            
+            long start = getStart();      
+            System.out.println(String.format("Download EAD: %d/%d", repo, objid));
+            System.out.flush();
+            File f = new File("test.xml");
+            saveEAD(d, f);
+            System.out.println(String.format("File written: %s; %d ms", f.getAbsolutePath(), getDuration(start)));
+            System.out.flush();
+            f = new File("test.fmt.xml");
+            convertEAD(d, f, repo, objid);
+            System.out.println(String.format("File written: %s; %d ms", f.getAbsolutePath(), getDuration(start)));
+            System.out.flush();
             bw.write(dumpEAD(d));
+            System.out.println(String.format("Download PDF EAD: %d/%d", repo, objid));
+            File eadFile = new File(String.format("ead.%d.pdf", objid));
+            asConn.saveResourceFile(repo, objid, FORMAT.pdf, eadFile);
+            System.out.println(String.format("File written: %s; %d ms", eadFile.getAbsolutePath(), getDuration(start)));
+            System.out.flush();
         } catch (SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

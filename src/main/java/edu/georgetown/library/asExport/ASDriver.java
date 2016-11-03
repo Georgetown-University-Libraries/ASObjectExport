@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -63,6 +64,14 @@ public class ASDriver {
       StringWriter sw = new StringWriter();
       TransformerFactory.newInstance().newTransformer(new StreamSource(is)).transform(new DOMSource(d), new StreamResult(sw));
       return sw.toString();
+  }
+  
+  public long getStart() {
+      return new Date().getTime();
+  }
+  
+  public long getDuration(long start) {
+      return getStart() - start;
   }
 
 }
