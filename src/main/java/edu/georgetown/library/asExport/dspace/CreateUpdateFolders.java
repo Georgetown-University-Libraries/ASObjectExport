@@ -80,11 +80,11 @@ public class CreateUpdateFolders extends ASDriver {
             count++;
             if (maxitem > 0 && count > maxitem) break;
             InventoryRecord invRec = inventory.get(objid);
-            Date faDate = invRec.getFindingAidExportDate();
-            String datestr = faDate == null ? "No Date" : ASDriver.exportDateFormat.format(faDate);
+            Date faExportDate = invRec.getFindingAidExportDate();
+            String datestr = faExportDate == null ? "No Date" : ASDriver.exportDateFormat.format(faExportDate);
             try {
                 String rheader = String.format("%s; Resource %d of %d [%s]", header, count, inventory.size(), datestr);
-                processResource(repoDir, irepo, objid, rheader, faDate);
+                processResource(repoDir, irepo, objid, rheader, faExportDate);
             } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -101,7 +101,7 @@ public class CreateUpdateFolders extends ASDriver {
         }
     }
     
-    public void processResource(File repoDir, int irepo, long objid, String rheader, Date faDate) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public void processResource(File repoDir, int irepo, long objid, String rheader, Date faExportDate) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         JSONObject obj = asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             System.out.println(String.format(" *** Object not found - skipping"));
@@ -110,11 +110,21 @@ public class CreateUpdateFolders extends ASDriver {
         ASResource asRes = new ASResource(obj);
         String id = asRes.getID(String.format("res_%d", objid));
         ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, asRes.isPublished());
+        
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
+        if (faExportDate == null) {
+            //Item contains an AT Finding Aid which will be updated
+        } else if (asRes.getModDate().compareTo(faExportDate) < 0) {
+            rrpt.setStatus(ResourceStatus.Skipped, String.format("AS Resource was last updated on [%s] which was before the last export on [%s]", 
+                    ASDriver.exportDateFormat.format(asRes.getModDate()), ASDriver.exportDateFormat.format(faExportDate)));                
+        } else if (moddate.compareTo(faExportDate) < 0) {
+            rrpt.setStatus(ResourceStatus.Skipped, String.format("Item full text was last updated on [%s] which is after mod date [%s]", 
+                    ASDriver.exportDateFormat.format(faExportDate), ASDriver.exportDateFormat.format(moddate)));                
+        }
         try {
-            if (faDate != null && moddate.compareTo(faDate) < 0) {
-                rrpt.setStatus(ResourceStatus.Skipped, String.format("Item was last updated on [%s]", ASDriver.exportDateFormat.format(faDate)));
+            if (rrpt.isSkipped()) {
+                //No action
             } else if (asRes.isPublished()) {
                 //Attempt to parse and report on document before creating folder.  Only create folder if parse-able.
                 Document d = asConn.getEADXML(irepo, objid);
@@ -135,12 +145,12 @@ public class CreateUpdateFolders extends ASDriver {
                 try(BufferedWriter contentsbw = new BufferedWriter(new FileWriter(contentsFile))) {
                     contentsbw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
                 }
-                rrpt.setStatus(ResourceStatus.Published, "");
+                rrpt.setStatus(ResourceStatus.FullTextUpdateFolderCreated, "");
             }        
         } catch (DataException | SAXException e) {
             rrpt.setStatus(ResourceStatus.Unparsed, e.getMessage());                
         } finally {
-            if (rrpt.getStatus() != ResourceStatus.Published) {
+            if (rrpt.getStatus() != ResourceStatus.FullTextUpdateFolderCreated) {
                 System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));                    
             }
             frpt.writeRecord(rrpt);

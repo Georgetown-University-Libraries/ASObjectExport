@@ -60,6 +60,10 @@ public class ResourceReportIngestRecord implements ResourceReportRecord {
       return status;
   }
   
+  public boolean isSkipped() {
+      return status == ResourceStatus.Skipped;
+  }
+  
   public String getStatusText() {
       if (note.isEmpty()) {
           return status.name();

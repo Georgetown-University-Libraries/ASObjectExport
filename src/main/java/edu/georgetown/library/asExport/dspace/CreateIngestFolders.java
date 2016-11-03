@@ -131,12 +131,12 @@ public class CreateIngestFolders extends ASDriver {
                 try(BufferedWriter contentsbw = new BufferedWriter(new FileWriter(contentsFile))) {
                     contentsbw.write(String.format("%s\tbundle:ORIGINAL\tdescription:%s", eadFile.getName(), prop.getBitstreamDesc("Finding Aid")));
                 }
-                rrpt.setStatus(ResourceStatus.Published, "");
+                rrpt.setStatus(ResourceStatus.IngestFolderCreated, "");
             }        
         } catch (SAXException e) {
             rrpt.setStatus(ResourceStatus.Unparsed, e.getMessage());                
         } finally {
-            if (rrpt.getStatus() != ResourceStatus.Published) {
+            if (rrpt.getStatus() != ResourceStatus.IngestFolderCreated) {
                 System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));                    
             }
             frpt.writeRecord(rrpt);

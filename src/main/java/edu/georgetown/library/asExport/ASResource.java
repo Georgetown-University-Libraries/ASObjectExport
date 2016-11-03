@@ -1,5 +1,9 @@
 package edu.georgetown.library.asExport;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -43,9 +47,15 @@ public class ASResource {
         return sb.toString();
     }
 
-    
-    public String getModDate() {
-        return json.containsKey("system_mtime") ? json.get("system_mtime").toString() : "";
+    public Date getModDate() {
+        if (json.containsKey("system_mtime")) {
+            String s = json.get("system_mtime").toString().substring(0,10);
+            try {
+                return new SimpleDateFormat("yyyy-MM-dd").parse(s);
+            } catch (ParseException e) {
+            }
+        }
+        return new Date();
     }
     public String getDate() {
         JSONArray darr = getArray(json, "dates");
