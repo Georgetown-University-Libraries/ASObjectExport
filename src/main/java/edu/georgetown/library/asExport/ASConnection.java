@@ -120,6 +120,27 @@ public class ASConnection {
       return resultObject;
   }
 
+  public JSONObject getSubject(String ref) throws URISyntaxException, ClientProtocolException, IOException {
+      String url = String.format("%s%s", root, ref);
+      URIBuilder uri = new URIBuilder(url);
+        
+      HttpGet method = makeGetRequest(uri);
+      CloseableHttpResponse resp = client.execute(method);
+      
+      String json = EntityUtils.toString(resp.getEntity(), "UTF-8");
+      
+      JSONObject resultObject = null;
+      try {
+         resultObject = (JSONObject)parser.parse(json);
+      } catch(Exception e) {
+          e.printStackTrace();
+      } finally {
+          method.releaseConnection();          
+      }
+      return resultObject;
+  }
+
+  
   public JSONObject getPublishedObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
       JSONObject resultObject = getObject(repo, type, objid);
       if (Boolean.TRUE.equals(resultObject.get("publish"))) {

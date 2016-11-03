@@ -1,9 +1,14 @@
 package edu.georgetown.library.asExport;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.http.client.ClientProtocolException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -71,8 +76,8 @@ public class ASResource {
         //return json.containsKey("finding_aid_date") ? json.get("finding_aid_date").toString() : "";
     }
 
-    public String getDescription() {
-        StringBuilder sb = new StringBuilder();
+    public List<String> getDescription() {
+        ArrayList<String> ret = new ArrayList<>();
         JSONArray narr = getArray(json, "notes");
         for(int i=0; i< narr.size(); i++) {
             JSONObject nobj = (JSONObject)narr.get(i);
@@ -83,10 +88,22 @@ public class ASResource {
                 JSONObject snobj = (JSONObject)snarr.get(j);
                 if (!Boolean.TRUE.equals(snobj.get("publish"))) continue;
                 if (snobj.containsKey("content")) {
-                    sb.append(snobj.get("content"));
+                    ret.add(snobj.get("content").toString().replaceAll("\\s+", " "));
                 }
             }
         }
-        return sb.toString();
+        return ret;
+    }
+    public List<String> getSubjects(ASConnection conn) throws ClientProtocolException, URISyntaxException, IOException {
+        ArrayList<String> ret = new ArrayList<>();
+        JSONArray narr = getArray(json, "subjects");
+        for(int i=0; i< narr.size(); i++) {
+            JSONObject obj = (JSONObject)narr.get(i);
+            String ref = obj.get("ref").toString();
+            JSONObject jsub = conn.getSubject(ref);
+            if (!Boolean.TRUE.equals(jsub.get("publish"))) continue;
+            ret.add(jsub.get("title").toString());            
+        }
+        return ret;
     }
 }

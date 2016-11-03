@@ -6,6 +6,7 @@ public enum ResourceStatus {
     Parsed,
     ExportFailure,
     Skipped,
+    MetadataCreated,
     IngestFolderCreated,
     FullTextUpdateFolderCreated;
 }
