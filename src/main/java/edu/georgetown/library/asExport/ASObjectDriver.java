@@ -69,7 +69,7 @@ public class ASObjectDriver extends ASDriver {
             System.out.println("Title         : "+res.getTitle());
             System.out.println("Date          : "+res.getDate());
             System.out.println("Mod Date      : "+res.getModDate());
-            System.out.println("Description   : "+res.getDescription());
+            //System.out.println("Description   : "+res.getDescription());
             System.out.println("");                    
         } else {
             System.out.println(" *** Unpublished ***\n\n");
@@ -77,24 +77,24 @@ public class ASObjectDriver extends ASDriver {
         
         Document d;
         try {
+            long start = getStart();      
+            System.out.println(String.format("Download EAD as XML: %d/%d", repo, objid));
+            System.out.flush();
             d = asConn.getEADXML(repo, objid);
             
-            long start = getStart();      
-            System.out.println(String.format("Download EAD: %d/%d", repo, objid));
-            System.out.flush();
             File f = new File("test.xml");
             saveEAD(d, f);
-            System.out.println(String.format("File written: %s; %d ms", f.getAbsolutePath(), getDuration(start)));
+            System.out.println(String.format("File written: %s; %,d ms", f.getAbsolutePath(), getDuration(start)));
             System.out.flush();
             f = new File("test.fmt.xml");
             convertEAD(d, f, repo, objid);
-            System.out.println(String.format("File written: %s; %d ms", f.getAbsolutePath(), getDuration(start)));
+            System.out.println(String.format("File written: %s; %,d ms", f.getAbsolutePath(), getDuration(start)));
             System.out.flush();
             bw.write(dumpEAD(d));
             System.out.println(String.format("Download PDF EAD: %d/%d", repo, objid));
             File eadFile = new File(String.format("ead.%d.pdf", objid));
             asConn.saveResourceFile(repo, objid, FORMAT.pdf, eadFile);
-            System.out.println(String.format("File written: %s; %d ms", eadFile.getAbsolutePath(), getDuration(start)));
+            System.out.println(String.format("File written: %s; %,d ms", eadFile.getAbsolutePath(), getDuration(start)));
             System.out.flush();
         } catch (SAXException e) {
             // TODO Auto-generated catch block
