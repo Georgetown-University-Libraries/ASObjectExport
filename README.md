@@ -44,7 +44,7 @@ A CSV file listing the finding aids in DSpace.  Note that DSpace does not store 
 * Bitstream name 
 * Bitstream last modification date (optional, from ead name)
 
-[Sample DSpace Query](SampleDSpaceQuery.md)
+[Sample DSpace Query](SampleDSpaceQuery.sql)
 
 ### Create Resource Ingest 
 
