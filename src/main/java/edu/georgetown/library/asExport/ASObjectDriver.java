@@ -64,7 +64,7 @@ public class ASObjectDriver extends ASDriver {
         JSONObject obj = asConn.getPublishedObject(repo, type, objid);
         if (obj != null) {
             //System.out.println(String.format("[%d] %s", objid, obj.toString()));
-            ASResource res = new ASResource(obj);
+            ASResource res = new ASResource(obj, asConn);
             System.out.println("Title         : "+res.getTitle());
             System.out.println("Date          : "+res.getDate());
             System.out.println("Mod Date      : "+res.getModDate());

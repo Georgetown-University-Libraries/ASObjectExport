@@ -2,11 +2,13 @@ package edu.georgetown.library.asExport;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.http.client.ClientProtocolException;
 
 public class ResourceReportIngestRecord implements ResourceReportRecord {
       
@@ -82,5 +84,17 @@ public class ResourceReportIngestRecord implements ResourceReportRecord {
   public void writeRecord(BufferedWriter bw) throws IOException {
      bw.write(asCSV());
      bw.flush();
+  }
+
+  public void setMetadata(long objid, ASResource asRes) throws ClientProtocolException, URISyntaxException, IOException {
+      id        = asRes.getID(""+objid);
+      title     = asRes.getTitle();
+      date      = asRes.getDate();
+      StringBuilder sb = new StringBuilder();
+      for(String s: asRes.getSubjects()) {
+          sb.append(s);
+          sb.append("; ");
+      }
+      subjects  = sb.toString();
   }
 }

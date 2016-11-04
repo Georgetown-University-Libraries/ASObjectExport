@@ -97,13 +97,14 @@ public class CreateItemMetadata extends ASDriver {
             return;
         }
         //System.out.println(obj.toString());
-        ASResource asRes = new ASResource(obj);
+        ASResource asRes = new ASResource(obj, asConn);
         String id = asRes.getID(String.format("res_%d", objid));
         ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, asRes.isPublished());
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
         
         BulkMetadataRecord bmr = new BulkMetadataRecord(prop.getRepoHandle(irepo));
+        rrpt.setMetadata(objid, asRes);
         
         try {
             if (dspaceInventory.isInInventory(irepo, objid)) {
@@ -126,7 +127,7 @@ public class CreateItemMetadata extends ASDriver {
                 bmr.addValue(MetadataRecordHeader.DATE, asRes.getDate());
                 bmr.addValue(MetadataRecordHeader.DESC, asRes.getDescription());
                 bmr.addValue(MetadataRecordHeader.IDOTHER, asRes.getID(""+objid));
-                bmr.addValue(MetadataRecordHeader.SUBJ, asRes.getSubjects(asConn));
+                bmr.addValue(MetadataRecordHeader.SUBJ, asRes.getSubjects());
                 bulkMeta.writeRecord(bmr);
                 rrpt.setStatus(ResourceStatus.MetadataCreated, "");
             }        

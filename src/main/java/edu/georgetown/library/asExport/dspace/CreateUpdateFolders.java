@@ -107,7 +107,7 @@ public class CreateUpdateFolders extends ASDriver {
             System.out.println(String.format(" *** Object not found - skipping"));
             return;
         }
-        ASResource asRes = new ASResource(obj);
+        ASResource asRes = new ASResource(obj, asConn);
         String id = asRes.getID(String.format("res_%d", objid));
         ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, asRes.isPublished());
         

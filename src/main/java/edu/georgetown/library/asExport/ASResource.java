@@ -14,9 +14,12 @@ import org.json.simple.JSONObject;
 
 public class ASResource {
     private JSONObject json;
+    private ArrayList<String> subjects;
+    private ASConnection asConn;
     
-    public ASResource(JSONObject json) {
+    public ASResource(JSONObject json, ASConnection asConn) {
         this.json = json;
+        this.asConn = asConn;
     }
     
     public static JSONArray getArray(JSONObject obj, String key) {
@@ -94,16 +97,18 @@ public class ASResource {
         }
         return ret;
     }
-    public List<String> getSubjects(ASConnection conn) throws ClientProtocolException, URISyntaxException, IOException {
-        ArrayList<String> ret = new ArrayList<>();
-        JSONArray narr = getArray(json, "subjects");
-        for(int i=0; i< narr.size(); i++) {
-            JSONObject obj = (JSONObject)narr.get(i);
-            String ref = obj.get("ref").toString();
-            JSONObject jsub = conn.getSubject(ref);
-            if (!Boolean.TRUE.equals(jsub.get("publish"))) continue;
-            ret.add(jsub.get("title").toString());            
+    public List<String> getSubjects() throws ClientProtocolException, URISyntaxException, IOException {
+        if (subjects == null) {
+            subjects = new ArrayList<String>();
+            JSONArray narr = getArray(json, "subjects");
+            for(int i=0; i< narr.size(); i++) {
+                JSONObject obj = (JSONObject)narr.get(i);
+                String ref = obj.get("ref").toString();
+                JSONObject jsub = asConn.getSubject(ref);
+                if (!Boolean.TRUE.equals(jsub.get("publish"))) continue;
+                subjects.add(jsub.get("title").toString());            
+            }
         }
-        return ret;
+        return subjects;        
     }
 }
