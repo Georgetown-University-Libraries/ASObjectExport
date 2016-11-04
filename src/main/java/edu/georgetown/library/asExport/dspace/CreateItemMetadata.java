@@ -109,6 +109,14 @@ public class CreateItemMetadata extends ASDriver {
             if (dspaceInventory.isInInventory(irepo, objid)) {
                 InventoryRecord irec = dspaceInventory.get(irepo, objid);
                 rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
+
+                File dir = new File(updateDir, asRes.getID(""+objid));
+                dir.mkdirs();
+                File dc = new File(dir, "dublin_core.xml");
+                try(BufferedWriter bw = new BufferedWriter(new FileWriter(dc))) {
+                    String fmt = "<dublin_core schema='dc'><dcvalue element='relation' qualifier='uri'>%s</dcvalue></dublin_core>";
+                    bw.write(String.format(fmt, getObjectUri(irepo, TYPE.resources, objid)));
+                }
             } else if (asRes.isPublished()) {
                 bmr.addValue(MetadataRecordHeader.TITLE, asRes.getTitle());
                 bmr.addValue(MetadataRecordHeader.AUTHOR, prop.getProperty("author", irepo));
@@ -120,15 +128,6 @@ public class CreateItemMetadata extends ASDriver {
                 bmr.addValue(MetadataRecordHeader.IDOTHER, asRes.getID(""+objid));
                 bmr.addValue(MetadataRecordHeader.SUBJ, asRes.getSubjects(asConn));
                 bulkMeta.writeRecord(bmr);
-                
-                File dir = new File(updateDir, asRes.getID(""+objid));
-                dir.mkdirs();
-                File dc = new File(dir, "dublin_core.xml");
-                try(BufferedWriter bw = new BufferedWriter(new FileWriter(dc))) {
-                    String fmt = "<dublin_core schema='dc'><dcvalue element='relation' qualifier='uri'>%s</dcvalue></dublin_core>";
-                    bw.write(String.format(fmt, getObjectUri(irepo, TYPE.resources, objid)));
-                }
-                
                 rrpt.setStatus(ResourceStatus.MetadataCreated, "");
             }        
         } finally {
