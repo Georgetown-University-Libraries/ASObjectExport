@@ -46,6 +46,33 @@ A CSV file listing the finding aids in DSpace.  Note that DSpace does not store 
 
 [Sample DSpace Query](SampleDSpaceQuery.sql)
 
+### Create Resource Metadata
+
+This workflow is intended to generate a Bulk Metadata Edit Spreadsheet for new resources in ArchivesSpace that are not yet in DSpace.
+
+Georgetown University also had a need to remove old full text EAD's (created by Archivist Toolkit) from DSpace.  
+
+#### Input
+* ASObject Export Property File (described above)
+* repositoryIds - comma separated list of repository ids to query (or blank to query all)
+* DG Finding Aid Inventory File (described above)
+
+#### Output
+* DSpace Metadata Report (repository id, resource id, resource title)
+* Bulk Metadata Ingest CSV (See https://wiki.duraspace.org/display/DSDOC5x/Batch+Metadata+Editing)
+* DSpace Itemupdate folders (for full-text deletion)
+
+```
+/.../itemupdate (path defined in the property file)
+    /{resource-id}
+      dublin_core.xml - metadata created with a crosswalk from the AS Resource Object JSON
+```
+
+#### DSpace Update 
+```
+  dspace itemupdate -e {eperson} -s ${ITEMUPDATEDIR} -D ORIGINAL_AND_DERIVATIVES -i dc.relation.uri
+```
+
 ### Create Resource Ingest 
 
 #### Input
