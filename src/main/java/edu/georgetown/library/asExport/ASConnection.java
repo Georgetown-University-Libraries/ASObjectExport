@@ -53,6 +53,7 @@ public class ASConnection {
     JSONParser parser = new JSONParser();
     HttpPost loginmethod = new HttpPost();
     String loginurl = String.format("%susers/%s/login", root, user);
+    System.out.println(loginurl);
     URIBuilder loginuri = new URIBuilder(loginurl);
     loginuri.addParameter("password", pass);
     
