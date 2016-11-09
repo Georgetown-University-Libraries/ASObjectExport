@@ -101,7 +101,7 @@ public class ASConnection {
   
   public JSONObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
       String url = String.format("%srepositories/%d/%s/%d", root, repo, type.toString(), objid);
-      //System.out.println(url);
+      System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
         
       HttpGet method = makeGetRequest(uri);
