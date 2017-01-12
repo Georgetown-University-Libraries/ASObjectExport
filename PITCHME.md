@@ -1,5 +1,5 @@
 #HSLIDE
-## DigitalGeorgetown ArchivesSpace OneSearch Integration
+### DigitalGeorgetown ArchivesSpace OneSearch Integration
 
 - Ensure discoverability of Finding Aid Resources
 
