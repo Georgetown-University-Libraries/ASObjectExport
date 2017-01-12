@@ -7,9 +7,9 @@
 ### History
 
 - Finding Aids in legacy tool (GAMMS)
- -  Georgetown Archives and Manuscripts Management System
-- __2009__ (approx) Migration to Archivist Toolkit 
-- __2013__ Finding Aids Imported into DigitalGeorgetown
+ -  Georgetown Archives and Manuscripts Management System <!-- .element: class="fragment" -->
+- __2009__ (approx) Migration to Archivist Toolkit <!-- .element: class="fragment" -->
+- __2013__ Finding Aids Imported into DigitalGeorgetown<!-- .element: class="fragment" -->
  - Export EAD, Convert to HTML Files
  - Selected Finding Aids Manually Submitted to DigitalGeorgetown
  - DG Items are Discoverable in OneSearch!
@@ -18,8 +18,8 @@
 
 #HSLIDE
 ### ArchivesSpace Migration
- - __2015__ Finding Aids migrated from Archivist Tooolkit to ArchivesSpace
- - __2016__ ArchivesSpace Public Facing Site Enabled
+ - __2015__ Finding Aids migrated from Archivist Tooolkit to ArchivesSpace <!-- .element: class="fragment" -->
+ - __2016 Jan__ ArchivesSpace Public Facing Site Enabled <!-- .element: class="fragment" -->
   - Curators control which Finding Aids are "published"
   - Library Website Directs Patrons to ArchivesSpace Search
   - Replace HTML Finding Aids with links to ArchivesSpace public site
@@ -37,6 +37,7 @@
 
 #HSLIDE
 #### ArchivesSpace / DigitalGeorgetown Integration Workflows
+- Implemented in Dec 2016
 
 #HSLIDE?image=https://cloud.githubusercontent.com/assets/1111057/20008598/77b73274-a25e-11e6-8b68-e34241073594.png
 
