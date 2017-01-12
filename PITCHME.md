@@ -8,8 +8,8 @@
 
 - Finding Aids in legacy tool (GAMMS)
  -  Georgetown Archives and Manuscripts Management System <!-- .element: class="fragment" -->
-- __2009__ (approx) Migration to Archivist Toolkit <!-- .element: class="fragment" -->
-- __2013__ Finding Aids Imported into DigitalGeorgetown<!-- .element: class="fragment" -->
+- 2009 (approx) Migration to Archivist Toolkit <!-- .element: class="fragment" -->
+- 2013 Finding Aids Imported into DigitalGeorgetown<!-- .element: class="fragment" -->
  - Export EAD, Convert to HTML Files
  - Selected Finding Aids Manually Submitted to DigitalGeorgetown
  - DG Items are Discoverable in OneSearch!
@@ -18,8 +18,8 @@
 
 #HSLIDE
 ### ArchivesSpace Migration
- - __2015__ Finding Aids migrated from Archivist Tooolkit to ArchivesSpace <!-- .element: class="fragment" -->
- - __2016 Jan__ ArchivesSpace Public Facing Site Enabled <!-- .element: class="fragment" -->
+ - 2015 Finding Aids migrated from Archivist Tooolkit to ArchivesSpace <!-- .element: class="fragment" -->
+ - 2016 Jan ArchivesSpace Public Facing Site Enabled <!-- .element: class="fragment" -->
   - Curators control which Finding Aids are "published"
   - Library Website Directs Patrons to ArchivesSpace Search
   - Replace HTML Finding Aids with links to ArchivesSpace public site
