@@ -39,17 +39,17 @@
 #### ArchivesSpace / DigitalGeorgetown Integration Workflows
 - Implemented in Dec 2016
 
-#HSLIDE?image=https://cloud.githubusercontent.com/assets/1111057/20008598/77b73274-a25e-11e6-8b68-e34241073594.png
+#VSLIDE?image=https://cloud.githubusercontent.com/assets/1111057/20008598/77b73274-a25e-11e6-8b68-e34241073594.png
 
-#HSLIDE?image=presentation/wf1.jpg
+#VSLIDE?image=presentation/wf1.jpg
 
-#HSLIDE?image=presentation/wf2.jpg
+#VSLIDE?image=presentation/wf2.jpg
 
-#HSLIDE?image=presentation/wf3.jpg
+#VSLIDE?image=presentation/wf3.jpg
 
 #HSLIDE
 ### Demo in OneSearch    
 - <a target="_blank" href="http://gt.summon.serialssolutions.com/#!/search?ho=t&l=en&q=Lauinger%20Library:%20Interior%20Design%2FLayout%20Plans%20(Rita%20Schaefer) ">Lauinger Library: Interior Design/Layout Plans (Rita Schaefer)</a>
 - <a target="_blank" href="http://gt.summon.serialssolutions.com/?q=David+Hagen%3A+Cartoon+Collection ">David Hagen: Cartoon Collection</a>
-  - <a target="_blank" href="https://www.google.com/#q=david+hagen+cartoons ">Google Search: David Hagens</a>
+  - <a target="_blank" href="https://www.google.com/#q=david+hagen+cartoons">Google Search: David Hagens</a>
 
