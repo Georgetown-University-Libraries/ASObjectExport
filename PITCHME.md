@@ -22,9 +22,7 @@
  - __2016__ ArchivesSpace Public Facing Site Enabled
   - Curators control which Finding Aids are "published"
   - Library Website Directs Patrons to ArchivesSpace Search
-  - DigitalGeorgetown
-   - Replace HTML Finding Aids with links to ArchivesSpace public site
-   - For items in DigitalGeorgetown
+  - Replace HTML Finding Aids with links to ArchivesSpace public site
    
 #HSLIDE?image=presentation/ASPub.jpg
     
