@@ -49,3 +49,5 @@
 
 #HSLIDE
 ### Demo in OneSearch    
+- <a target="_blank" href="http://gt.summon.serialssolutions.com/#!/search?ho=t&l=en&q=Lauinger%20Library:%20Interior%20Design%2FLayout%20Plans%20(Rita%20Schaefer) ">Lauinger Library: Interior Design/Layout Plans (Rita Schaefer)</a>
+- <a target="_blank" href="http://gt.summon.serialssolutions.com/?q=David+Hagen%3A+Cartoon+Collection ">David Hagen: Cartoon Collection</a>
