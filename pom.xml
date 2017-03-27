@@ -81,7 +81,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>edu.georgetown.library.as2dspace.ASObjectDriver</mainClass>
+                            <mainClass>edu.georgetown.library.asExport.ASObjectDriver</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
