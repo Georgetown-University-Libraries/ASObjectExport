@@ -81,10 +81,11 @@ public class ASObjectDriver extends ASDriver {
             System.out.flush();
             d = asConn.getEADXML(repo, objid);
             
-            File f = new File("test.xml");
+            File f = new File(String.format("ead.%d.xml", objid));
             saveEAD(d, f);
             System.out.println(String.format("File written: %s; %s", f.getAbsolutePath(), getDurationString(start)));
             System.out.flush();
+            /*
             f = new File("test.fmt.xml");
             convertEAD(d, f, repo, objid);
             System.out.println(String.format("File written: %s; %s", f.getAbsolutePath(), getDurationString(start)));
@@ -95,6 +96,7 @@ public class ASObjectDriver extends ASDriver {
             asConn.saveResourceFile(repo, objid, FORMAT.pdf, eadFile);
             System.out.println(String.format("File written: %s; %s", eadFile.getAbsolutePath(), getDurationString(start)));
             System.out.flush();
+            */
         } catch (SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
