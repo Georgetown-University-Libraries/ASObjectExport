@@ -61,7 +61,7 @@ public class ASObjectDriver extends ASDriver {
         long objid = cmdLine.getObjectId();
         TYPE type  = cmdLine.getType();
         
-        JSONObject obj = asConn.getPublishedObject(repo, type, objid);
+        JSONObject obj = asConn.getObject(repo, type, objid);
         if (obj != null) {
             //System.out.println(String.format("[%d] %s", objid, obj.toString()));
             ASResource res = new ASResource(obj, asConn);
