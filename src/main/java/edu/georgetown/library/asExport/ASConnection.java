@@ -149,10 +149,10 @@ public class ASConnection {
       }
       return null;
   }
-  
+
   public Document getEADXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException, DataException {
-      if (getPublishedObject(repo, TYPE.resources, objid) == null) {
-          throw new DataException(String.format("Resource [%d/%d] does not exist or is unpublihsed", repo, objid));
+      if (getObject(repo, TYPE.resources, objid) == null) {
+          throw new DataException(String.format("Resource [%d/%d] does not existd", repo, objid));
       }
       String url = String.format("%srepositories/%d/resource_descriptions/%d.%s", root, repo, objid, FORMAT.xml);
       URIBuilder uri = new URIBuilder(url);
