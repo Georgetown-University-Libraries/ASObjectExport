@@ -2,9 +2,7 @@ package edu.georgetown.library.asExport.dspace;
 
 import org.apache.http.client.ClientProtocolException;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -34,8 +32,6 @@ public class CreateItemMetadata extends ASDriver {
     private int[] irepos;
     int maxitem = 0;
     private File rptDir;
-    private File outDir;
-    private File updateDir;
     private DSpaceInventoryFile dspaceInventory;
     
     public CreateItemMetadata(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
@@ -44,9 +40,6 @@ public class CreateItemMetadata extends ASDriver {
         irepos = repList.isEmpty() ? prop.getRepositories() : ASProperties.getIntList("The repos parameter", repList);
         maxitem = cmdLine.getMaxItemPerRepo();
         rptDir = prop.getReportDir();
-        outDir = prop.resetOutputDir();
-        updateDir = new File(outDir, "itemupdate");//for clearing out bitsreams
-        updateDir.mkdirs();
         frpt = new ResourceReport(new File(rptDir, "AS.report.csv"));
         bulkMeta = new BulkMetadataCreate(new File(rptDir, "AS.metadata.csv"));
         dspaceInventory = cmdLine.getInventoryFile();
@@ -110,14 +103,6 @@ public class CreateItemMetadata extends ASDriver {
             if (dspaceInventory.isInInventory(irepo, objid)) {
                 InventoryRecord irec = dspaceInventory.get(irepo, objid);
                 rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
-
-                File dir = new File(updateDir, asRes.getID(""+objid));
-                dir.mkdirs();
-                File dc = new File(dir, "dublin_core.xml");
-                try(BufferedWriter bw = new BufferedWriter(new FileWriter(dc))) {
-                    String fmt = "<dublin_core schema='dc'><dcvalue element='relation' qualifier='uri'>%s</dcvalue></dublin_core>";
-                    bw.write(String.format(fmt, getObjectUri(irepo, TYPE.resources, objid)));
-                }
             } else if (asRes.isPublished()) {
                 bmr.addValue(MetadataRecordHeader.TITLE, asRes.getTitle());
                 bmr.addValue(MetadataRecordHeader.AUTHOR, prop.getProperty("author", irepo));
