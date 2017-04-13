@@ -12,12 +12,10 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import edu.georgetown.library.asExport.ASCommandLineSpec;
 import edu.georgetown.library.asExport.ASDriver;
-import edu.georgetown.library.asExport.ASObject;
 import edu.georgetown.library.asExport.ASParsedCommandLine;
 import edu.georgetown.library.asExport.ASProperties;
 import edu.georgetown.library.asExport.ASResource;

@@ -152,7 +152,7 @@ public class ASConnection {
 
   public Document getEADXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException, DataException {
       if (getObject(repo, TYPE.resources, objid) == null) {
-          throw new DataException(String.format("Resource [%d/%d] does not existd", repo, objid));
+          throw new DataException(String.format("Resource [%d/%d] does not exist", repo, objid));
       }
       String url = String.format("%srepositories/%d/resource_descriptions/%d.%s?include_unpublished=true", root, repo, objid, FORMAT.xml);
       URIBuilder uri = new URIBuilder(url);
@@ -165,6 +165,21 @@ public class ASConnection {
       }
   }
   
+  public Document getDigObjectXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException, DataException {
+      if (getObject(repo, TYPE.digital_objects, objid) == null) {
+          throw new DataException(String.format("Digital Object [%d/%d] does not exist", repo, objid));
+      }
+      String url = String.format("%srepositories/%d/digital_objects/mets%d.%s?include_unpublished=true", root, repo, objid, FORMAT.xml);
+      URIBuilder uri = new URIBuilder(url);
+        
+      HttpGet method = makeGetRequest(uri);
+      CloseableHttpResponse resp = client.execute(method);
+      
+      try(InputStream is = resp.getEntity().getContent()) {
+          return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+      }
+  }
+
   public void saveResourceFile(int repo, long objid, FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException, DataException {
       if (getPublishedObject(repo, TYPE.resources, objid) == null) {
           throw new DataException(String.format("Resource [%d/%d] does not exist or is unpublihsed", repo, objid));

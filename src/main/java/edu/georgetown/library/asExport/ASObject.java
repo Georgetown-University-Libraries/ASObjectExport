@@ -120,12 +120,32 @@ public abstract class ASObject {
     
     
     abstract public String getType(); 
-    abstract public List<String> getDescription();
-    abstract public JSONArray getSubjectArray();
     abstract public Document getXML() throws ClientProtocolException, URISyntaxException, IOException, SAXException, ParserConfigurationException, DataException;
     abstract public String getXmlFileName();
     abstract public void saveFile(FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException, DataException;
     
+    public List<String> getDescription() {
+        ArrayList<String> ret = new ArrayList<>();
+        JSONArray narr = getArray(json, "notes");
+        for(int i=0; i< narr.size(); i++) {
+            JSONObject nobj = (JSONObject)narr.get(i);
+            if (!Boolean.TRUE.equals(nobj.get("publish"))) continue;
+            if (!"scopecontent".equals(nobj.get("type"))) continue;
+            JSONArray snarr = getArray(nobj, "subnotes");
+            for(int j=0; j< snarr.size(); j++) {
+                JSONObject snobj = (JSONObject)snarr.get(j);
+                if (!Boolean.TRUE.equals(snobj.get("publish"))) continue;
+                if (snobj.containsKey("content")) {
+                    ret.add(snobj.get("content").toString().replaceAll("\\s+", " "));
+               }
+	            }
+        }
+        return ret;
+    }
+
+    public JSONArray getSubjectArray() {
+        return getArray(json, "subjects");
+    }
     public String getDescriptionStr() {
         StringBuilder sb = new StringBuilder();
         for(String s: getDescription()) {
@@ -161,6 +181,9 @@ public abstract class ASObject {
         }
         if ("accession".equals(json.get("jsonmodel_type"))) {
             return new ASAccession(repo, objid, json, asConn);
+        }
+        if ("digital_object".equals(json.get("jsonmodel_type"))) {
+            return new ASDigitalObject(repo, objid, json, asConn);
         }
         return null;
     }
