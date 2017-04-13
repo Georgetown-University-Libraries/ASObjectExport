@@ -126,6 +126,14 @@ public abstract class ASObject {
     abstract public String getXmlFileName();
     abstract public void saveFile(FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException, DataException;
     
+    public String getDescriptionStr() {
+        StringBuilder sb = new StringBuilder();
+        for(String s: getDescription()) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+    
     public File saveXML() throws TransformerConfigurationException, FileNotFoundException, ClientProtocolException, TransformerException, TransformerFactoryConfigurationError, IOException, URISyntaxException, SAXException, ParserConfigurationException, DataException {
         File f = new File(getXmlFileName());
         ASDriver.saveXml(getXML(), f);

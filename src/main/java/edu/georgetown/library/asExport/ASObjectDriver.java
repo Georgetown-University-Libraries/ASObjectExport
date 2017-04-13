@@ -10,14 +10,11 @@ import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.apache.http.client.ClientProtocolException;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class ASObjectDriver extends ASDriver {
