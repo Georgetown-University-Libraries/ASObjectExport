@@ -100,7 +100,7 @@ public class ASConnection {
       return objects;
   }
   
-  public JSONObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
+  public ASObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
       String url = String.format("%srepositories/%d/%s/%d", root, repo, type.toString(), objid);
       System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
@@ -118,7 +118,7 @@ public class ASConnection {
       } finally {
           method.releaseConnection();          
       }
-      return resultObject;
+      return ASObject.makeObject(repo, objid, resultObject, this);
   }
 
   public JSONObject getSubject(String ref) throws URISyntaxException, ClientProtocolException, IOException {
@@ -142,9 +142,9 @@ public class ASConnection {
   }
 
   
-  public JSONObject getPublishedObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
-      JSONObject resultObject = getObject(repo, type, objid);
-      if (Boolean.TRUE.equals(resultObject.get("publish"))) {
+  public ASObject getPublishedObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
+      ASObject resultObject = getObject(repo, type, objid);
+      if (resultObject.isPublished()) {
           return resultObject;
       }
       return null;

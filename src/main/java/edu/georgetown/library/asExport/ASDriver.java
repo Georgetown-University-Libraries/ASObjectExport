@@ -41,31 +41,12 @@ public class ASDriver {
       return String.format("%srepositories/%d/%s/%d", prop.getPubService(), repo, type.name(), objid);
   }
 
-  public void convertEAD(Document d, File f, int repo, long objid) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException, DataException{
-      InputStream is = this.getClass().getClassLoader().getResourceAsStream("edu/georgetown/library/asExport/eadMetadata.xsl");
-      try(FileOutputStream fos = new FileOutputStream(f)) {
-          Transformer t = TransformerFactory.newInstance().newTransformer(new StreamSource(is));
-          t.setParameter("creator", prop.getProperty("creator", repo));
-          t.setParameter("rights", prop.getProperty("rights", repo));
-          t.setParameter("author", prop.getProperty("author", repo));
-          t.setParameter("uri", getObjectUri(repo, TYPE.resources, objid));
-          t.transform(new DOMSource(d), new StreamResult(fos));          
-      }
-  }
-
-  public void saveEAD(Document d, File f) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException{
+  public static void saveXml(Document d, File f) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException{
       try(FileOutputStream fos = new FileOutputStream(f)) {
           TransformerFactory.newInstance().newTransformer().transform(new DOMSource(d), new StreamResult(fos));          
       }
   }
 
-  public String dumpEAD(Document d) throws TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError, FileNotFoundException, IOException{
-      InputStream is = this.getClass().getClassLoader().getResourceAsStream("edu/georgetown/library/asExport/eadReport.xsl");
-      StringWriter sw = new StringWriter();
-      TransformerFactory.newInstance().newTransformer(new StreamSource(is)).transform(new DOMSource(d), new StreamResult(sw));
-      return sw.toString();
-  }
-  
   public long getStart() {
       return new Date().getTime();
   }

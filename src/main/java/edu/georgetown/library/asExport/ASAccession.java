@@ -14,14 +14,14 @@ import org.json.simple.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class ASResource extends ASObject {
+public class ASAccession extends ASObject {
     
-    public ASResource(int repo, long objid, JSONObject json, ASConnection asConn) {
+    public ASAccession(int repo, long objid, JSONObject json, ASConnection asConn) {
         super(repo, objid, json, asConn);
     }
     
     public String getType() {
-        return "resource";
+        return "accession";
     }
     
     public List<String> getDescription() {
@@ -59,7 +59,7 @@ public class ASResource extends ASObject {
 
     @Override
     public String getXmlFileName() {
-        return String.format("ead.%s.xml", objid);
+        return String.format("accession.%s.xml", objid);
     }
     
 }

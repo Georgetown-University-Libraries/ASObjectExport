@@ -17,6 +17,7 @@ import org.json.simple.parser.ParseException;
 
 import edu.georgetown.library.asExport.ASCommandLineSpec;
 import edu.georgetown.library.asExport.ASDriver;
+import edu.georgetown.library.asExport.ASObject;
 import edu.georgetown.library.asExport.ASParsedCommandLine;
 import edu.georgetown.library.asExport.ASProperties;
 import edu.georgetown.library.asExport.ASResource;
@@ -84,35 +85,34 @@ public class CreateItemMetadata extends ASDriver {
     }
     
     public void processResource(int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-        JSONObject obj = asConn.getObject(irepo, TYPE.resources, objid);
+        ASResource obj = (ASResource)asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             System.out.println(String.format(" *** Object not found - skipping"));
             return;
         }
         //System.out.println(obj.toString());
-        ASResource asRes = new ASResource(obj, asConn);
-        String id = asRes.getID(String.format("res_%d", objid));
-        ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, asRes.isPublished());
+        String id = obj.getID(String.format("res_%d", objid));
+        ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, obj.isPublished());
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
         
         BulkMetadataRecord bmr = new BulkMetadataRecord(prop.getRepoHandle(irepo));
-        rrpt.setMetadata(objid, asRes);
+        rrpt.setMetadata(objid, obj);
         
         try {
             if (dspaceInventory.isInInventory(irepo, objid)) {
                 InventoryRecord irec = dspaceInventory.get(irepo, objid);
                 rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
-            } else if (asRes.isPublished()) {
-                bmr.addValue(MetadataRecordHeader.TITLE, asRes.getTitle());
+            } else if (obj.isPublished()) {
+                bmr.addValue(MetadataRecordHeader.TITLE, obj.getTitle());
                 bmr.addValue(MetadataRecordHeader.AUTHOR, prop.getProperty("author", irepo));
                 bmr.addValue(MetadataRecordHeader.CREATOR, prop.getProperty("creator", irepo));
                 bmr.addValue(MetadataRecordHeader.RIGHTS, prop.getProperty("rights", irepo));
                 bmr.addValue(MetadataRecordHeader.RELURI, getObjectUri(irepo, TYPE.resources, objid));
-                bmr.addValue(MetadataRecordHeader.DATE, asRes.getDate());
-                bmr.addValue(MetadataRecordHeader.DESC, asRes.getDescription());
-                bmr.addValue(MetadataRecordHeader.IDOTHER, asRes.getID(""+objid));
-                bmr.addValue(MetadataRecordHeader.SUBJ, asRes.getSubjects());
+                bmr.addValue(MetadataRecordHeader.DATE, obj.getDate());
+                bmr.addValue(MetadataRecordHeader.DESC, obj.getDescription());
+                bmr.addValue(MetadataRecordHeader.IDOTHER, obj.getID(""+objid));
+                bmr.addValue(MetadataRecordHeader.SUBJ, obj.getSubjects());
                 bulkMeta.writeRecord(bmr);
                 rrpt.setStatus(ResourceStatus.MetadataCreated, "");
             }        
