@@ -50,7 +50,7 @@ public class ASAccession extends ASObject {
         Element unitid        = addEADElement(did, "unitid", getID("n/a"));
         if (json.containsKey("create_time")) {
             @SuppressWarnings("unused")
-            Element unitdate  = addEADElement(did, "unitid", json.get("create_time").toString());
+            Element unitdate  = addEADElement(did, "unitdate", json.get("create_time").toString());
         }
         Element scopecontent  = addEADElement(archdesc, "scopecontent", "");
         @SuppressWarnings("unused")
