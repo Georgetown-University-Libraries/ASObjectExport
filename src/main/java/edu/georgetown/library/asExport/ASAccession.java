@@ -80,7 +80,7 @@ public class ASAccession extends ASObject {
 
     @Override
     public String getXmlFileName() {
-        return String.format("accession.%s.xml", objid);
+        return String.format("ead.accession.%s.xml", objid);
     }
     
 }
