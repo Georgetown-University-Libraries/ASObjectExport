@@ -19,6 +19,10 @@ public class ASAccession extends ASObject {
         super(repo, objid, json, asConn);
     }
     
+    @Override
+    public String getID(String def) {
+        return "accession." + super.getID(def);    
+    }
     public String getType() {
         return "accession";
     }
