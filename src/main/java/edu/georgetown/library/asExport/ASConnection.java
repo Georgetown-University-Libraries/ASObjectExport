@@ -169,7 +169,7 @@ public class ASConnection {
       if (getObject(repo, TYPE.digital_objects, objid) == null) {
           throw new DataException(String.format("Digital Object [%d/%d] does not exist", repo, objid));
       }
-      String url = String.format("%srepositories/%d/digital_objects/mets%d.%s?include_unpublished=true", root, repo, objid, FORMAT.xml);
+      String url = String.format("%srepositories/%d/digital_objects/mets/%d.%s?include_unpublished=true", root, repo, objid, FORMAT.xml);
       URIBuilder uri = new URIBuilder(url);
         
       HttpGet method = makeGetRequest(uri);
