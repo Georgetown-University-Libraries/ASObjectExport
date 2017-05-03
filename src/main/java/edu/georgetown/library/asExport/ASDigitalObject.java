@@ -3,7 +3,6 @@ package edu.georgetown.library.asExport;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.http.client.ClientProtocolException;
@@ -11,20 +10,19 @@ import org.json.simple.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class ASResource extends ASObject {
+public class ASDigitalObject extends ASObject {
     
-    public ASResource(int repo, long objid, JSONObject json, ASConnection asConn) {
+    public ASDigitalObject(int repo, long objid, JSONObject json, ASConnection asConn) {
         super(repo, objid, json, asConn);
     }
     
     public String getType() {
-        return "resource";
+        return "digital_objects";
     }
     
-
     @Override
     public Document getXML() throws ClientProtocolException, URISyntaxException, IOException, SAXException, ParserConfigurationException, DataException {
-        return asConn.getEADXML(repo, objid);
+       return asConn.getDigObjectXML(repo, objid);
     }
 
     @Override
@@ -34,7 +32,7 @@ public class ASResource extends ASObject {
 
     @Override
     public String getXmlFileName() {
-        return String.format("ead.%s.xml", objid);
+        return String.format("digital_object.%s.xml", objid);
     }
     
 }

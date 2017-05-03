@@ -60,13 +60,4 @@ public class DSpaceInventoryFile {
         return count;
     }
     
-    public static void main(String[] args) {
-        String s = args.length == 0 ? "reports/asSyncInventory.csv" : args[0];
-        try {
-            DSpaceInventoryFile dspaceInv = new DSpaceInventoryFile(new File(s));
-            System.out.println(String.format("Inventory has [%d] Finding Aids", dspaceInv.count()));
-        } catch (IOException e) {
-           e.printStackTrace();
-        }
-    }
 }

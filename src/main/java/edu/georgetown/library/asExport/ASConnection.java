@@ -100,7 +100,7 @@ public class ASConnection {
       return objects;
   }
   
-  public JSONObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
+  public ASObject getObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
       String url = String.format("%srepositories/%d/%s/%d", root, repo, type.toString(), objid);
       System.out.println(url);
       URIBuilder uri = new URIBuilder(url);
@@ -118,7 +118,7 @@ public class ASConnection {
       } finally {
           method.releaseConnection();          
       }
-      return resultObject;
+      return ASObject.makeObject(repo, objid, resultObject, this);
   }
 
   public JSONObject getSubject(String ref) throws URISyntaxException, ClientProtocolException, IOException {
@@ -142,9 +142,9 @@ public class ASConnection {
   }
 
   
-  public JSONObject getPublishedObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
-      JSONObject resultObject = getObject(repo, type, objid);
-      if (Boolean.TRUE.equals(resultObject.get("publish"))) {
+  public ASObject getPublishedObject(int repo, TYPE type, long objid) throws URISyntaxException, ClientProtocolException, IOException {
+      ASObject resultObject = getObject(repo, type, objid);
+      if (resultObject.isPublished()) {
           return resultObject;
       }
       return null;
@@ -152,7 +152,7 @@ public class ASConnection {
 
   public Document getEADXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException, DataException {
       if (getObject(repo, TYPE.resources, objid) == null) {
-          throw new DataException(String.format("Resource [%d/%d] does not existd", repo, objid));
+          throw new DataException(String.format("Resource [%d/%d] does not exist", repo, objid));
       }
       String url = String.format("%srepositories/%d/resource_descriptions/%d.%s?include_unpublished=true", root, repo, objid, FORMAT.xml);
       URIBuilder uri = new URIBuilder(url);
@@ -165,6 +165,21 @@ public class ASConnection {
       }
   }
   
+  public Document getDigObjectXML(int repo, long objid) throws URISyntaxException, ClientProtocolException, IOException, SAXException, ParserConfigurationException, DataException {
+      if (getObject(repo, TYPE.digital_objects, objid) == null) {
+          throw new DataException(String.format("Digital Object [%d/%d] does not exist", repo, objid));
+      }
+      String url = String.format("%srepositories/%d/digital_objects/mets/%d.%s?include_unpublished=true", root, repo, objid, FORMAT.xml);
+      URIBuilder uri = new URIBuilder(url);
+        
+      HttpGet method = makeGetRequest(uri);
+      CloseableHttpResponse resp = client.execute(method);
+      
+      try(InputStream is = resp.getEntity().getContent()) {
+          return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+      }
+  }
+
   public void saveResourceFile(int repo, long objid, FORMAT fmt, File f) throws URISyntaxException, ClientProtocolException, IOException, DataException {
       if (getPublishedObject(repo, TYPE.resources, objid) == null) {
           throw new DataException(String.format("Resource [%d/%d] does not exist or is unpublihsed", repo, objid));

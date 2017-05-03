@@ -52,11 +52,4 @@ public class InventoryRecord {
     public int getFindingAidRepo() {return repo;}
     public long getFindingAidResourceId() {return objid;}
     
-    public static final void main(String[] args) {
-        try {
-            System.out.println(ASDriver.exportDateFormat.parse("20161101"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
 }

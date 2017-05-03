@@ -2,9 +2,7 @@ package edu.georgetown.library.asExport.dspace;
 
 import org.apache.http.client.ClientProtocolException;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -14,7 +12,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import edu.georgetown.library.asExport.ASCommandLineSpec;
@@ -34,8 +31,6 @@ public class CreateItemMetadata extends ASDriver {
     private int[] irepos;
     int maxitem = 0;
     private File rptDir;
-    private File outDir;
-    private File updateDir;
     private DSpaceInventoryFile dspaceInventory;
     
     public CreateItemMetadata(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
@@ -44,9 +39,6 @@ public class CreateItemMetadata extends ASDriver {
         irepos = repList.isEmpty() ? prop.getRepositories() : ASProperties.getIntList("The repos parameter", repList);
         maxitem = cmdLine.getMaxItemPerRepo();
         rptDir = prop.getReportDir();
-        outDir = prop.resetOutputDir();
-        updateDir = new File(outDir, "itemupdate");//for clearing out bitsreams
-        updateDir.mkdirs();
         frpt = new ResourceReport(new File(rptDir, "AS.report.csv"));
         bulkMeta = new BulkMetadataCreate(new File(rptDir, "AS.metadata.csv"));
         dspaceInventory = cmdLine.getInventoryFile();
@@ -91,43 +83,34 @@ public class CreateItemMetadata extends ASDriver {
     }
     
     public void processResource(int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
-        JSONObject obj = asConn.getObject(irepo, TYPE.resources, objid);
+        ASResource obj = (ASResource)asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             System.out.println(String.format(" *** Object not found - skipping"));
             return;
         }
         //System.out.println(obj.toString());
-        ASResource asRes = new ASResource(obj, asConn);
-        String id = asRes.getID(String.format("res_%d", objid));
-        ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, asRes.isPublished());
+        String id = obj.getID(String.format("res_%d", objid));
+        ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, obj.isPublished());
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
         
         BulkMetadataRecord bmr = new BulkMetadataRecord(prop.getRepoHandle(irepo));
-        rrpt.setMetadata(objid, asRes);
+        rrpt.setMetadata(objid, obj);
         
         try {
             if (dspaceInventory.isInInventory(irepo, objid)) {
                 InventoryRecord irec = dspaceInventory.get(irepo, objid);
                 rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
-
-                File dir = new File(updateDir, asRes.getID(""+objid));
-                dir.mkdirs();
-                File dc = new File(dir, "dublin_core.xml");
-                try(BufferedWriter bw = new BufferedWriter(new FileWriter(dc))) {
-                    String fmt = "<dublin_core schema='dc'><dcvalue element='relation' qualifier='uri'>%s</dcvalue></dublin_core>";
-                    bw.write(String.format(fmt, getObjectUri(irepo, TYPE.resources, objid)));
-                }
-            } else if (asRes.isPublished()) {
-                bmr.addValue(MetadataRecordHeader.TITLE, asRes.getTitle());
+            } else if (obj.isPublished()) {
+                bmr.addValue(MetadataRecordHeader.TITLE, obj.getTitle());
                 bmr.addValue(MetadataRecordHeader.AUTHOR, prop.getProperty("author", irepo));
                 bmr.addValue(MetadataRecordHeader.CREATOR, prop.getProperty("creator", irepo));
                 bmr.addValue(MetadataRecordHeader.RIGHTS, prop.getProperty("rights", irepo));
                 bmr.addValue(MetadataRecordHeader.RELURI, getObjectUri(irepo, TYPE.resources, objid));
-                bmr.addValue(MetadataRecordHeader.DATE, asRes.getDate());
-                bmr.addValue(MetadataRecordHeader.DESC, asRes.getDescription());
-                bmr.addValue(MetadataRecordHeader.IDOTHER, asRes.getID(""+objid));
-                bmr.addValue(MetadataRecordHeader.SUBJ, asRes.getSubjects());
+                bmr.addValue(MetadataRecordHeader.DATE, obj.getDate());
+                bmr.addValue(MetadataRecordHeader.DESC, obj.getDescription());
+                bmr.addValue(MetadataRecordHeader.IDOTHER, obj.getID(""+objid));
+                bmr.addValue(MetadataRecordHeader.SUBJ, obj.getSubjects());
                 bulkMeta.writeRecord(bmr);
                 rrpt.setStatus(ResourceStatus.MetadataCreated, "");
             }        
