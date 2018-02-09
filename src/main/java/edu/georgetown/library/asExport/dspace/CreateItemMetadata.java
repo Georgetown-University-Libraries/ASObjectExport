@@ -67,6 +67,7 @@ public class CreateItemMetadata extends ASDriver {
         for(Long id : dspaceInventory.getRepoInventory(irepo).keySet()) {
                 currentRepoInventory.put(id,  dspaceInventory.getRepoInventory(irepo).get(id));
         }
+        System.out.println(String.format("TBTB1 maxitem:%d; repo:%d; size:%d", maxitem, irepo, currentRepoInventory.size()));
         
         for(long objid : list) {
             count++;
@@ -89,6 +90,7 @@ public class CreateItemMetadata extends ASDriver {
             }   
         }        
 
+        System.out.println(String.format("TBTB2 maxitem:%d; repo:%d; size:%d", maxitem, irepo, currentRepoInventory.size()));
         //Report on items known to DG that are not found... report only if maxitem is 0
         if (maxitem == 0 && currentRepoInventory.size() > 0) {
             System.out.println("** DG ITEMS NO LONGER IN ARCHIVESSPACE");
