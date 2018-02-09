@@ -63,7 +63,10 @@ public class CreateItemMetadata extends ASDriver {
         int count = 0;
         
         //Create map to track items known to DG that are not found
-        HashMap<Long,InventoryRecord> currentRepoInventory = dspaceInventory.getRepoInventory(irepo);
+        HashMap<Long,InventoryRecord> currentRepoInventory = new HashMap<>();
+        for(Long id : dspaceInventory.getRepoInventory(irepo).keySet()) {
+                currentRepoInventory.put(id,  dspaceInventory.getRepoInventory(irepo).get(id));
+        }
         
         for(long objid : list) {
             count++;
@@ -85,8 +88,6 @@ public class CreateItemMetadata extends ASDriver {
                 e.printStackTrace();
             }   
         }        
-
-        System.out.println("** TEST!!");
 
         //Report on items known to DG that are not found... report only if maxitem is 0
         if (maxitem == 0 && currentRepoInventory.size() > 0) {
