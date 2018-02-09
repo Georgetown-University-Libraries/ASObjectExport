@@ -5,6 +5,7 @@ import org.apache.http.client.ClientProtocolException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -60,12 +61,16 @@ public class CreateItemMetadata extends ASDriver {
     public void processRepo(int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
         List<Long> list = asConn.getObjects(irepo, TYPE.resources);
         int count = 0;
+        
+        //Create map to track items known to DG that are not found
+        HashMap<Long,InventoryRecord> currentRepoInventory = dspaceInventory.getRepoInventory(irepo);
+        
         for(long objid : list) {
             count++;
             if (maxitem > 0 && count > maxitem) break;
             try {
                 String rheader = String.format("%s; Resource %d of %d", header, count, list.size());
-                processResource(irepo, objid, rheader);
+                processResource(irepo, currentRepoInventory, objid, rheader);
             } catch (ParserConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -80,9 +85,24 @@ public class CreateItemMetadata extends ASDriver {
                 e.printStackTrace();
             }   
         }        
+        
+        //Report on items known to DG that are not found... report only if maxitem is 0
+        if (maxitem == 0 && currentRepoInventory.size() > 0) {
+            System.out.println("** DG ITEMS NO LONGER IN ARCHIVESSPACE");
+            for(InventoryRecord irec: currentRepoInventory.values()) {
+                System.out.println(String.format("\t* %s\t%s", irec.getItemHandle(), irec.getFindingAidUrl()));
+                ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(
+                    irec.getFindingAidUrl(), 
+                    ResourceStatus.NoLongerExistsInArchivesSpace, 
+                    "Resource no longer exists in ArchivesSpace",
+                    irec.getTitle()
+                );
+                frpt.writeRecord(rrpt);
+            }
+        }
     }
     
-    public void processResource(int irepo, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
+    public void processResource(int irepo, HashMap<Long,InventoryRecord> currentRepoInventory, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         ASResource obj = (ASResource)asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
             System.out.println(String.format(" *** Object not found - skipping"));
@@ -100,6 +120,7 @@ public class CreateItemMetadata extends ASDriver {
         try {
             if (dspaceInventory.isInInventory(irepo, objid)) {
                 InventoryRecord irec = dspaceInventory.get(irepo, objid);
+                currentRepoInventory.remove(objid);
                 rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
             } else if (obj.isPublished()) {
                 bmr.addValue(MetadataRecordHeader.TITLE, obj.getTitle());
@@ -116,7 +137,7 @@ public class CreateItemMetadata extends ASDriver {
             }        
         } finally {
             if (rrpt.getStatus() != ResourceStatus.MetadataCreated) {
-                System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));                    
+                System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));    
             }
             frpt.writeRecord(rrpt);
         }

@@ -20,13 +20,20 @@ public class ResourceReportIngestRecord implements ResourceReportRecord {
   private String note = "";
   
   public ResourceReportIngestRecord(String id, boolean published) {
-    this.id = id;
-    if (published) {
-        setStatus(ResourceStatus.Unparsed, "Not yet parsed");
-    } else {
-        setStatus(ResourceStatus.Unpublished, "Finding Aid is not published in ArchivesSpace");
-    }
+    this(
+        id, 
+        published ? ResourceStatus.Unparsed : ResourceStatus.Unpublished, 
+        published ? "Not yet parsed": "Finding Aid is not published in ArchivesSpace",
+        ""
+    );
   }
+
+  public ResourceReportIngestRecord(String id, ResourceStatus rStat, String label, String title) {
+      this.id = id;
+      setStatus(rStat, label);
+      this.title = title;
+  }
+
   
   public void setParsedValues(String csv) throws IOException, DataException {
     if (csv.isEmpty()) return;
