@@ -1,6 +1,7 @@
 package edu.georgetown.library.asExport;
 
 public enum ResourceStatus {
+    NoLongerExistsInArchivesSpace,
     Unpublished,
     Unparsed,
     Parsed,
