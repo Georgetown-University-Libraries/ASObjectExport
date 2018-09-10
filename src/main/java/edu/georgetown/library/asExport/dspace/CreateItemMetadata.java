@@ -128,7 +128,7 @@ public class CreateItemMetadata extends ASDriver {
                     rrpt.setStatus(ResourceStatus.Skipped,
                         String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
                 } else {
-                  rrpt.setStatus(ResourceStatus.Unpublished,
+                  rrpt.setStatus(ResourceStatus.NoLongerPublishedInArchivesSpace,
                       String.format("Resource no longer published for DSpace Item with handle [%s]", irec.getItemHandle()));
                 }
             } else if (obj.isPublished()) {
