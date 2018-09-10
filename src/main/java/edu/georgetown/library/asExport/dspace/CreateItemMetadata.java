@@ -26,14 +26,14 @@ import edu.georgetown.library.asExport.ResourceReportIngestRecord;
 import edu.georgetown.library.asExport.ResourceStatus;
 import edu.georgetown.library.asExport.TYPE;
 
-public class CreateItemMetadata extends ASDriver {   
+public class CreateItemMetadata extends ASDriver {
     ResourceReport frpt;
     BulkMetadataCreate bulkMeta;
     private int[] irepos;
     int maxitem = 0;
     private File rptDir;
     private DSpaceInventoryFile dspaceInventory;
-    
+
     public CreateItemMetadata(ASParsedCommandLine cmdLine) throws ClientProtocolException, URISyntaxException, IOException, ParseException, DataException {
         super(cmdLine);
         String repList = cmdLine.getRepositoryList();
@@ -57,17 +57,17 @@ public class CreateItemMetadata extends ASDriver {
             processRepo(irepo, String.format("Repo %d of %d", ++count, repos.length));
         }
     }
-    
+
     public void processRepo(int irepo, String header) throws DataException, ClientProtocolException, URISyntaxException, IOException {
         List<Long> list = asConn.getObjects(irepo, TYPE.resources);
         int count = 0;
-        
+
         //Create map to track items known to DG that are not found
         HashMap<Long,InventoryRecord> currentRepoInventory = new HashMap<>();
         for(Long id : dspaceInventory.getRepoInventory(irepo).keySet()) {
                 currentRepoInventory.put(id,  dspaceInventory.getRepoInventory(irepo).get(id));
         }
-        
+
         for(long objid : list) {
             count++;
             if (maxitem > 0 && count > maxitem) break;
@@ -86,8 +86,8 @@ public class CreateItemMetadata extends ASDriver {
             } catch (TransformerFactoryConfigurationError e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            }   
-        }        
+            }
+        }
 
         //Report on items known to DG that are not found... report only if maxitem is 0
         if (maxitem == 0 && currentRepoInventory.size() > 0) {
@@ -95,8 +95,8 @@ public class CreateItemMetadata extends ASDriver {
             for(InventoryRecord irec: currentRepoInventory.values()) {
                 System.out.println(String.format("\t* %s\t%s", irec.getItemHandle(), irec.getFindingAidUrl()));
                 ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(
-                    irec.getFindingAidUrl(), 
-                    ResourceStatus.NoLongerExistsInArchivesSpace, 
+                    irec.getFindingAidUrl(),
+                    ResourceStatus.NoLongerExistsInArchivesSpace,
                     "Resource no longer exists in ArchivesSpace [" + irec.getItemHandle() + "]",
                     irec.getTitle()
                 );
@@ -104,7 +104,7 @@ public class CreateItemMetadata extends ASDriver {
             }
         }
     }
-    
+
     public void processResource(int irepo, HashMap<Long,InventoryRecord> currentRepoInventory, long objid, String rheader) throws ClientProtocolException, URISyntaxException, IOException, ParserConfigurationException, DataException, TransformerConfigurationException, TransformerException, TransformerFactoryConfigurationError {
         ASResource obj = (ASResource)asConn.getObject(irepo, TYPE.resources, objid);
         if (obj == null) {
@@ -116,15 +116,21 @@ public class CreateItemMetadata extends ASDriver {
         ResourceReportIngestRecord rrpt = new ResourceReportIngestRecord(id, obj.isPublished());
         String label = String.format("%s: %s", rheader, id);
         System.out.println(label);
-        
+
         BulkMetadataRecord bmr = new BulkMetadataRecord(prop.getRepoHandle(irepo));
         rrpt.setMetadata(objid, obj);
-        
+
         try {
             if (dspaceInventory.isInInventory(irepo, objid)) {
                 InventoryRecord irec = dspaceInventory.get(irepo, objid);
                 currentRepoInventory.remove(objid);
-                rrpt.setStatus(ResourceStatus.Skipped, String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
+                if (obj.isPublished()) {
+                    rrpt.setStatus(ResourceStatus.Skipped,
+                        String.format("Item already in DSpace with handle [%s]", irec.getItemHandle()));
+                } else {
+                  rrpt.setStatus(ResourceStatus.Unpublished,
+                      String.format("Resource no longer published for DSpace Item with handle [%s]", irec.getItemHandle()));
+                }
             } else if (obj.isPublished()) {
                 bmr.addValue(MetadataRecordHeader.TITLE, obj.getTitle());
                 bmr.addValue(MetadataRecordHeader.AUTHOR, prop.getProperty("author", irepo));
@@ -137,10 +143,10 @@ public class CreateItemMetadata extends ASDriver {
                 bmr.addValue(MetadataRecordHeader.SUBJ, obj.getSubjects());
                 bulkMeta.writeRecord(bmr);
                 rrpt.setStatus(ResourceStatus.MetadataCreated, "");
-            }        
+            }
         } finally {
             if (rrpt.getStatus() != ResourceStatus.MetadataCreated) {
-                System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));    
+                System.out.println(String.format(" *** %s - SKIPPING", rrpt.getStatusText()));
             }
             frpt.writeRecord(rrpt);
         }
@@ -159,7 +165,7 @@ public class CreateItemMetadata extends ASDriver {
             ASParsedCommandLine cmdLine = asCmdLine.parse(args);
             CreateItemMetadata createIngestMetadata = new CreateItemMetadata(cmdLine);
             System.out.println("Process Repos");
-            createIngestMetadata.processRepos();        
+            createIngestMetadata.processRepos();
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (URISyntaxException e) {
