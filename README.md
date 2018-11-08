@@ -2,7 +2,7 @@ Extract published resources using the ArchivesSpace API.
 Generate FindingAid item objects in DSpace.
 
 ## Generic Operations
-These generic operations are command line operations that may be application to any institution using ArchivesSpace.
+These generic operations are command line operations that may be applicable to any institution using ArchivesSpace.
 
 ### Get Published Resources
 
